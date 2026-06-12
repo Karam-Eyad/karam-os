@@ -16,6 +16,8 @@ import {
   SunIcon,
   MoonIcon,
   LogoutIcon,
+  MenuIcon,
+  HabitsIcon,
 } from "./icons";
 
 export function AppShell({
@@ -35,6 +37,7 @@ export function AppShell({
   const nav = [
     { href: "/", label: t.today, icon: TodayIcon },
     { href: "/week", label: t.week, icon: WeekIcon },
+    { href: "/habits", label: t.habits, icon: HabitsIcon },
     { href: "/projects", label: t.projects, icon: ProjectsIcon },
     { href: "/tasks", label: t.allTasks, icon: TasksIcon },
     { href: "/settings", label: t.settings, icon: SettingsIcon },
@@ -47,7 +50,7 @@ export function AppShell({
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2.5 px-5 pb-6 pt-6">
         <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-fg text-sm font-black">
-          K
+          م
         </div>
         <span className="text-base font-bold tracking-tight">{t.appName}</span>
       </div>
@@ -145,7 +148,7 @@ export function AppShell({
             aria-label="menu"
             className="grid h-9 w-9 place-items-center rounded-lg border border-border"
           >
-            <span className="text-lg">☰</span>
+            <MenuIcon />
           </button>
           <span className="font-bold">{t.appName}</span>
         </header>

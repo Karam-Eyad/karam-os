@@ -1,10 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useI18n } from "@/lib/i18n/context";
 import { PageHeader } from "@/components/PageHeader";
 import { TaskItem } from "@/components/TaskItem";
 import { TaskDialog } from "@/components/TaskDialog";
-import type { Project, TaskWithProject } from "@/lib/types";
+import { HabitRing } from "@/components/HabitRing";
+import { HabitIconRenderer } from "@/components/icons";
+import type { Project, TaskWithProject, HabitWithLogs } from "@/lib/types";
 
 export function TodayView({
   userName,
@@ -12,12 +15,14 @@ export function TodayView({
   today,
   projects,
   todayISO,
+  habits,
 }: {
   userName: string;
   overdue: TaskWithProject[];
   today: TaskWithProject[];
   projects: Pick<Project, "id" | "name" | "color">[];
   todayISO: string;
+  habits?: HabitWithLogs[];
 }) {
   const { t, locale } = useI18n();
 
@@ -33,25 +38,67 @@ export function TodayView({
     { label: t.overdue, value: overdue.length },
   ];
 
+  // Habits mini section
+  const habitsDone = (habits ?? []).filter((h) =>
+    h.logs.some((l) => l.completed_date === todayISO)
+  ).length;
+  const habitsTotal = (habits ?? []).length;
+  const habitsPct = habitsTotal > 0 ? Math.round((habitsDone / habitsTotal) * 100) : 0;
+
   return (
     <div className="animate-rise">
       <PageHeader
         eyebrow={dateLabel}
-        title={`${t.welcome}${userName ? "، " + userName : ""} 👋`}
+        title={`${t.welcome}${userName ? "، " + userName : ""}`}
         action={<TaskDialog projects={projects} defaultDate={todayISO} />}
       />
 
-      <div className="mb-7 grid grid-cols-3 gap-3">
+      <div className="mb-5 grid grid-cols-3 gap-3">
         {stats.map((s) => (
           <div
             key={s.label}
-            className="rounded-xl border border-border bg-surface px-4 py-3.5"
+            className="rounded-xl border border-border bg-surface px-4 py-3.5 animate-slide-up"
           >
             <p className="text-2xl font-bold tabular-nums">{s.value}</p>
             <p className="mt-0.5 text-xs font-medium text-muted">{s.label}</p>
           </div>
         ))}
       </div>
+
+      {/* Habits mini section */}
+      {habitsTotal > 0 && (
+        <Link href="/habits" className="mb-7 block">
+          <div className="flex items-center gap-4 rounded-xl border border-border bg-surface px-4 py-3.5 hover-lift transition-base cursor-pointer animate-slide-up stagger-2">
+            <HabitRing percent={habitsPct} size={44} stroke={4} color="var(--primary)">
+              <span className="text-xs font-bold tabular-nums">{habitsPct}%</span>
+            </HabitRing>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold">{t.todayHabits}</p>
+              <p className="mt-0.5 text-xs text-muted">
+                {habitsDone}/{habitsTotal}
+              </p>
+            </div>
+            <div className="flex -space-x-1">
+              {(habits ?? []).slice(0, 5).map((h) => (
+                <div
+                  key={h.id}
+                  className="grid h-7 w-7 place-items-center rounded-full border-2 border-surface"
+                  style={{
+                    background: h.logs.some((l) => l.completed_date === todayISO)
+                      ? h.color
+                      : "var(--surface-2)",
+                    color: h.logs.some((l) => l.completed_date === todayISO)
+                      ? "white"
+                      : "var(--muted)",
+                  }}
+                >
+                  <HabitIconRenderer icon={h.icon} width={13} height={13} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </Link>
+      )}
 
       {overdue.length > 0 && (
         <section className="mb-6">

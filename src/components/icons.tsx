@@ -1,3 +1,5 @@
+import React from "react";
+
 type P = React.SVGProps<SVGSVGElement>;
 const base = {
   width: 18,
@@ -79,3 +81,141 @@ export const LogoutIcon = (p: P) => (
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
   </svg>
 );
+export const MenuIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M3 12h18M3 6h18M3 18h18" />
+  </svg>
+);
+export const XIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M18 6 6 18M6 6l12 12" />
+  </svg>
+);
+export const FireIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 22c4.97 0 9-3.58 9-8 0-3-1.5-5.5-4-7.5 0 2-1 3.5-2.5 4.5C14 9 13 7 13 5c-2 1.5-3 4-3 6.5 0 .5.05 1 .15 1.5C9.05 12.5 8.5 11.5 8.5 10.5c-1.5 1.5-2.5 4-2.5 6 0 3 2.5 5.5 6 5.5z" fill="currentColor" stroke="none" />
+  </svg>
+);
+export const TrendingUpIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M22 7l-8.5 8.5L9 11l-7 7M22 7h-7M22 7v7" />
+  </svg>
+);
+export const AwardIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="8" r="6" />
+    <path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" />
+  </svg>
+);
+export const TargetIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
+  </svg>
+);
+export const ZapIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+  </svg>
+);
+export const BarChartIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 20V10M6 20V4M18 20v-6" />
+  </svg>
+);
+export const HeartIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+  </svg>
+);
+export const BookIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z" />
+  </svg>
+);
+export const DropIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+  </svg>
+);
+export const BrainIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.14z" />
+    <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.14z" />
+  </svg>
+);
+export const PenIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z" />
+  </svg>
+);
+export const MusicIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M9 18V5l12-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM21 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+  </svg>
+);
+export const SunriseIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M17 18a5 5 0 0 0-10 0M12 2v7M4.22 10.22l1.42 1.42M1 18h2M21 18h2M18.36 11.64l1.42-1.42M23 22H1M8 6l4-4 4 4" />
+  </svg>
+);
+export const LeafIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M17 8C8 10 5.9 16.17 3.82 19.34a1 1 0 0 0 1.31 1.44C7.5 19 12 17 15 14s5-5 5-9c0 0-2 1-3 3z" />
+    <path d="M3 21s4-2 6-5" />
+  </svg>
+);
+export const DumbbellIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M6.5 6.5h11M6.5 17.5h11M3 9.5h3v5H3zM18 9.5h3v5h-3z" />
+    <rect x="6" y="9" width="1" height="6" rx="0.5" />
+    <rect x="17" y="9" width="1" height="6" rx="0.5" />
+    <path d="M9 12h6" />
+  </svg>
+);
+export const StarIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z" />
+  </svg>
+);
+export const ClockIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 6v6l4 2" />
+  </svg>
+);
+export const HabitsIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 22c4.97 0 9-3.58 9-8 0-3-1.5-5.5-4-7.5 0 2-1 3.5-2.5 4.5C14 9 13 7 13 5c-2 1.5-3 4-3 6.5 0 .5.05 1 .15 1.5C9.05 12.5 8.5 11.5 8.5 10.5c-1.5 1.5-2.5 4-2.5 6 0 3 2.5 5.5 6 5.5z" />
+  </svg>
+);
+
+/* ---------- Habit icon map ---------- */
+
+export const HABIT_ICONS: Record<string, (p: P) => React.JSX.Element> = {
+  target: TargetIcon,
+  fire: FireIcon,
+  zap: ZapIcon,
+  heart: HeartIcon,
+  book: BookIcon,
+  drop: DropIcon,
+  brain: BrainIcon,
+  pen: PenIcon,
+  music: MusicIcon,
+  sunrise: SunriseIcon,
+  leaf: LeafIcon,
+  dumbbell: DumbbellIcon,
+  star: StarIcon,
+  clock: ClockIcon,
+  award: AwardIcon,
+  trending: TrendingUpIcon,
+};
+
+export function HabitIconRenderer({
+  icon,
+  ...p
+}: P & { icon: string }) {
+  const Comp = HABIT_ICONS[icon] ?? TargetIcon;
+  return <Comp {...p} />;
+}

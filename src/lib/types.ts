@@ -37,3 +37,26 @@ export type Profile = {
   email_reminders: boolean;
   created_at: string;
 };
+
+export type Habit = {
+  id: string;
+  user_id: string;
+  name: string;
+  icon: string;
+  color: string;
+  frequency: "daily" | "weekly";
+  sort_order: number;
+  created_at: string;
+};
+
+export type HabitLog = {
+  id: string;
+  habit_id: string;
+  user_id: string;
+  completed_date: string; // YYYY-MM-DD
+  created_at: string;
+};
+
+export type HabitWithLogs = Habit & {
+  logs: HabitLog[];
+};

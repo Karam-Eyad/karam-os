@@ -162,6 +162,67 @@ export async function setStatus(formData: FormData) {
   revalidateApp();
 }
 
+/* ---------- Habits ---------- */
+
+export async function createHabit(formData: FormData) {
+  const { supabase, user } = await requireUser();
+  const name = String(formData.get("name") || "").trim();
+  if (!name) return;
+  await supabase.from("habits").insert({
+    user_id: user.id,
+    name,
+    icon: String(formData.get("icon") || "target"),
+    color: String(formData.get("color") || "#4f46e5"),
+    frequency: String(formData.get("frequency") || "daily") as "daily" | "weekly",
+  });
+  revalidateApp();
+}
+
+export async function updateHabit(formData: FormData) {
+  const { supabase } = await requireUser();
+  const id = String(formData.get("id"));
+  await supabase
+    .from("habits")
+    .update({
+      name: String(formData.get("name") || "").trim(),
+      icon: String(formData.get("icon") || "target"),
+      color: String(formData.get("color") || "#4f46e5"),
+      frequency: String(formData.get("frequency") || "daily") as "daily" | "weekly",
+    })
+    .eq("id", id);
+  revalidateApp();
+}
+
+export async function deleteHabit(formData: FormData) {
+  const { supabase } = await requireUser();
+  await supabase.from("habits").delete().eq("id", String(formData.get("id")));
+  revalidateApp();
+}
+
+export async function toggleHabitLog(formData: FormData) {
+  const { supabase, user } = await requireUser();
+  const habit_id = String(formData.get("habit_id"));
+  const date = String(formData.get("date")); // YYYY-MM-DD
+  const completed = formData.get("completed") === "true";
+
+  if (completed) {
+    // delete the log (toggle off)
+    await supabase
+      .from("habit_logs")
+      .delete()
+      .eq("habit_id", habit_id)
+      .eq("completed_date", date);
+  } else {
+    // insert log (toggle on)
+    await supabase.from("habit_logs").upsert({
+      habit_id,
+      user_id: user.id,
+      completed_date: date,
+    });
+  }
+  revalidateApp();
+}
+
 /* ---------- Profile / settings ---------- */
 
 export async function updateProfile(formData: FormData) {
