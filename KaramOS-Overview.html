@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Karam OS — نظرة عامة على المشروع</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface-2: #fbfaf7;
+    --border: #e7e4dd;
+    --border-strong: #d8d4c9;
+    --ink: #1c1b19;
+    --muted: #78736a;
+    --primary: #4f46e5;
+    --primary-soft: #eef0ff;
+    --green: #15803d;
+    --green-soft: #e7f5ec;
+    --amber: #b45309;
+    --amber-soft: #fdf2e0;
+    --red: #b91c1c;
+    --red-soft: #fbeaea;
+    --radius: 16px;
+    --shadow: 0 1px 2px rgba(28,27,25,.04), 0 8px 24px rgba(28,27,25,.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Cairo', Tahoma, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #4f46e5 0%, #6d5cf0 100%);
+    color: #fff;
+    border-radius: 22px;
+    padding: 44px 38px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: -60px;
+    top: -60px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(255,255,255,.18), transparent 70%);
+  }
+  .hero .eyebrow {
+    font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+    opacity: .85; font-weight: 700;
+  }
+  .hero h1 { font-size: 40px; font-weight: 800; margin: 6px 0 10px; }
+  .hero p { font-size: 17px; opacity: .92; max-width: 560px; }
+  .hero .links { margin-top: 22px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .hero a {
+    background: rgba(255,255,255,.16);
+    border: 1px solid rgba(255,255,255,.28);
+    color: #fff; text-decoration: none;
+    padding: 9px 16px; border-radius: 999px;
+    font-size: 14px; font-weight: 600;
+    backdrop-filter: blur(4px);
+    transition: background .2s;
+  }
+  .hero a:hover { background: rgba(255,255,255,.28); }
+
+  /* Section */
+  section { margin-top: 38px; }
+  .sec-title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 22px; font-weight: 800; margin-bottom: 16px;
+  }
+  .sec-title .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--primary);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+  }
+  .card + .card { margin-top: 14px; }
+
+  .lead { font-size: 16px; color: var(--ink); }
+  .muted { color: var(--muted); }
+
+  /* Grid of features */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+  .feat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+  }
+  .feat h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .feat p { font-size: 14px; color: var(--muted); }
+  .ic { font-size: 18px; }
+
+  /* Tech chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 13px; font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* Status table */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: right; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+  th { font-weight: 700; color: var(--muted); font-size: 13px; }
+  tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 700; white-space: nowrap;
+  }
+  .b-done { background: var(--green-soft); color: var(--green); }
+  .b-wait { background: var(--amber-soft); color: var(--amber); }
+
+  /* Problem cards */
+  .problem {
+    border-inline-start: 4px solid var(--amber);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .problem.high { border-inline-start-color: var(--red); }
+  .problem.low { border-inline-start-color: var(--primary); }
+  .problem + .problem { margin-top: 12px; }
+  .problem h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .problem .why { font-size: 14px; color: var(--muted); margin-bottom: 8px; }
+  .problem .fix { font-size: 14px; }
+  .problem .fix b { color: var(--primary); }
+  .tag {
+    font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px;
+    vertical-align: middle; margin-inline-start: 8px;
+  }
+  .tag-high { background: var(--red-soft); color: var(--red); }
+  .tag-med { background: var(--amber-soft); color: var(--amber); }
+  .tag-low { background: var(--primary-soft); color: var(--primary); }
+
+  code {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1px 6px;
+    font-family: 'SF Mono', Menlo, monospace;
+    font-size: 13px;
+    direction: ltr; display: inline-block;
+  }
+  .footer { margin-top: 48px; text-align: center; color: var(--muted); font-size: 13px; }
+  ul.clean { list-style: none; }
+  ul.clean li { padding: 4px 0 4px 0; position: relative; padding-inline-end: 22px; }
+  ul.clean li::before {
+    content: "←"; position: absolute; inset-inline-end: 0; color: var(--primary); font-weight: 700;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="eyebrow">نظرة عامة على المشروع</div>
+    <h1>Karam OS</h1>
+    <p>تطبيق ويب شخصي لإدارة المهام والواجبات اليومية والمشاريع، بتسجيل دخول آمن ومتاح من أي مكان — ثنائي اللغة (عربي/إنجليزي) مع وضع فاتح وداكن.</p>
+    <div class="links">
+      <a href="https://karam-os.vercel.app" target="_blank">🌐 التطبيق المباشر</a>
+      <a href="https://github.com/Karam-Eyad/karam-os" target="_blank">💻 مستودع GitHub</a>
+    </div>
+  </header>
+
+  <!-- ما هو -->
+  <section>
+    <div class="sec-title"><span class="dot"></span> ما هو المشروع؟</div>
+    <div class="card">
+      <p class="lead">
+        <b>Karam OS</b> هو لوحة تحكّم شخصية تنظّم عليها مهامك ومشاريعك في مكان واحد. تقدر تضيف مهام بأولويات وتواريخ استحقاق وحالات،
+        تربطها بمشاريع، وتشوف "مهام اليوم" وعرض أسبوعي على شكل تقويم، ونسبة إنجاز لكل مشروع. كل مستخدم يشوف بياناته فقط بفضل
+        نظام حماية على مستوى الصفوف (RLS)، ويوصله ملخّص يومي بالإيميل بمهام اليوم.
+      </p>
+    </div>
+  </section>
+
+  <!-- التقنيات -->
+  <section>
+    <div class="sec-title"><span class="dot"></span> التقنيات المستخدمة</div>
+    <div class="card">
+      <div class="chips">
+        <span class="chip">Next.js 16 (App Router)</span>
+        <span class="chip">TypeScript</span>
+        <span class="chip">React 19</span>
+        <span class="chip">Tailwind CSS v4</span>
+        <span class="chip">Supabase (Postgres)</span>
+        <span class="chip">Supabase Auth</span>
+        <span class="chip">Row Level Security</span>
+        <span class="chip">Edge Functions (Deno)</span>
+        <span class="chip">pg_cron</span>
+        <span class="chip">Resend (إيميل)</span>
+        <span class="chip">Vercel (استضافة)</span>
+        <span class="chip">GitHub</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- المميزات -->
+  <section>
+    <div class="sec-title"><span class="dot"></span> ما الذي تم إنجازه</div>
+    <div class="grid">
+      <div class="feat"><h3><span class="ic">🔐</span> مصادقة آمنة</h3><p>تسجيل دخول بالبريد وكلمة المرور (وزر Google جاهز للتفعيل)، صفحات دخول/إنشاء حساب/استعادة كلمة المرور، وحماية الصفحات الداخلية.</p></div>
+      <div class="feat"><h3><span class="ic">✅</span> إدارة المهام</h3><p>عنوان، وصف، تاريخ استحقاق، أولوية (عالية/متوسطة/منخفضة)، حالة (انتظار/جارٍ/مكتمل)، وربط بمشروع.</p></div>
+      <div class="feat"><h3><span class="ic">🔁</span> مهام متكرّرة</h3><p>مهام يومية أو أسبوعية تتولّد تلقائياً عند إكمالها.</p></div>
+      <div class="feat"><h3><span class="ic">📁</span> مشاريع ومسارات</h3><p>اسم، مسار، لون، ونسبة إنجاز محسوبة تلقائياً مع شريط تقدّم.</p></div>
+      <div class="feat"><h3><span class="ic">📅</span> عروض متعددة</h3><p>لوحة "اليوم"، عرض أسبوعي على شكل تقويم 7 أيام، كل المهام مع فلاتر، والمشاريع.</p></div>
+      <div class="feat"><h3><span class="ic">🌍</span> ثنائي اللغة</h3><p>عربي (RTL) وإنجليزي (LTR) مع زر تبديل يحفظ تفضيلك، وتبديل اتجاه تلقائي.</p></div>
+      <div class="feat"><h3><span class="ic">🌗</span> فاتح / داكن</h3><p>وضع فاتح ودافئ + وضع داكن، بتصميم مينمال نظيف على طراز Linear/Notion.</p></div>
+      <div class="feat"><h3><span class="ic">📧</span> ملخّص يومي بالإيميل</h3><p>دالة مجدولة عبر pg_cron ترسل صباحاً ملخّص مهام اليوم لكل مستخدم.</p></div>
+    </div>
+  </section>
+
+  <!-- التحقق -->
+  <section>
+    <div class="sec-title"><span class="dot"></span> ما الذي تم التحقق منه فعلياً</div>
+    <div class="card" style="padding:6px 10px;">
+      <table>
+        <thead><tr><th>البند</th><th>الحالة</th><th>طريقة التحقق</th></tr></thead>
+        <tbody>
+          <tr><td>النشر على Vercel</td><td><span class="badge b-done">يعمل</span></td><td>الموقع حيّ على karam-os.vercel.app (HTTP 200)</td></tr>
+          <tr><td>حماية الصفحات</td><td><span class="badge b-done">يعمل</span></td><td>الدخول بدون جلسة يحوّل إلى /login</td></tr>
+          <tr><td>تسجيل الدخول</td><td><span class="badge b-done">يعمل</span></td><td>دخول فعلي من الواجهة + جلسة صالحة</td></tr>
+          <tr><td>إنشاء مهمة</td><td><span class="badge b-done">يعمل</span></td><td>أُنشئت من الواجهة وظهرت + مؤكَّدة بقاعدة البيانات</td></tr>
+          <tr><td>إنشاء مشروع</td><td><span class="badge b-done">يعمل</span></td><td>ظهر مباشرة مع شريط الإنجاز</td></tr>
+          <tr><td>عزل البيانات (RLS)</td><td><span class="badge b-done">يعمل</span></td><td>سياسات auth.uid()، اختبار عزل فعلي</td></tr>
+          <tr><td>الحذف المتسلسل</td><td><span class="badge b-done">يعمل</span></td><td>حذف المستخدم يزيل كل بياناته</td></tr>
+          <tr><td>الإيميل اليومي</td><td><span class="badge b-wait">شبه جاهز</span></td><td>الدالة منشورة وفعّالة + كرون نشِط — ناقص مفتاح Resend</td></tr>
+          <tr><td>تسجيل Google</td><td><span class="badge b-wait">يحتاج تفعيل</span></td><td>الكود جاهز — يحتاج Client ID/Secret</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- المشاكل -->
+  <section>
+    <div class="sec-title"><span class="dot"></span> المشاكل / الأمور التي تحتاج حلاً</div>
+
+    <div class="problem high">
+      <h3>1. حدّ إرسال الإيميل في Supabase <span class="tag tag-high">أولوية عالية</span></h3>
+      <p class="why">خدمة الإيميل المدمجة في Supabase مخصّصة للتجربة ومحدودة بعدد قليل من الرسائل بالساعة، ما يمنع المستخدمين الجدد من إكمال التسجيل (ويعطّل إيميلات التأكيد والاستعادة).</p>
+      <p class="fix"><b>الحل:</b> إعداد <b>SMTP مخصّص عبر Resend</b> (يتطلّب توثيق دومين + مفتاح API). يزيل الحدّ نهائياً ويُشغّل كل إيميلات المصادقة والملخّص اليومي. مؤقتاً تم تعطيل "تأكيد الإيميل" للسماح بالدخول الفوري.</p>
+    </div>
+
+    <div class="problem">
+      <h3>2. مفتاح Resend للملخّص اليومي <span class="tag tag-med">أولوية متوسطة</span></h3>
+      <p class="why">دالة الملخّص اليومي منشورة والكرون نشِط، لكنها تحتاج مفتاح API لإرسال الرسائل فعلياً.</p>
+      <p class="fix"><b>الحل:</b> إضافة <code>RESEND_API_KEY</code> في أسرار الـ Edge Function داخل لوحة Supabase (واختيارياً <code>RESEND_FROM</code> و <code>CRON_SECRET</code>).</p>
+    </div>
+
+    <div class="problem">
+      <h3>3. تفعيل تسجيل الدخول عبر Google <span class="tag tag-med">أولوية متوسطة</span></h3>
+      <p class="why">زر "المتابعة عبر Google" موجود لكن المزوّد غير مفعّل، فيظهر خطأ "provider is not enabled".</p>
+      <p class="fix"><b>الحل:</b> إنشاء بيانات OAuth في Google Cloud وإضافة رابط <code>https://lrrwsdesnlbzuzuaqjhr.supabase.co/auth/v1/callback</code>، ثم تفعيل Google في Supabase ولصق Client ID/Secret.</p>
+    </div>
+
+    <div class="problem low">
+      <h3>4. توقيت لوحة "اليوم" <span class="tag tag-low">أولوية منخفضة</span></h3>
+      <p class="why">لوحة "اليوم" تحسب التاريخ بتوقيت الخادم (UTC) بدل توقيتك المحلي، فقد تظهر مهمة "اليوم" متأخّرة بضع ساعات (تبقى ظاهرة في "كل المهام" و"الأسبوع").</p>
+      <p class="fix"><b>الحل:</b> احتساب "اليوم" بناءً على توقيت المتصفّح المحلي بدل الخادم.</p>
+    </div>
+
+    <div class="problem low">
+      <h3>5. تغيير كلمة المرور من الإعدادات <span class="tag tag-low">تحسين</span></h3>
+      <p class="why">صفحة الإعدادات لا تحتوي حالياً على خيار لتغيير كلمة المرور — مهم لأن الحساب الأول أُنشئ بكلمة مرور مؤقتة.</p>
+      <p class="fix"><b>الحل:</b> إضافة حقل "تغيير كلمة المرور" في صفحة الإعدادات.</p>
+    </div>
+  </section>
+
+  <!-- الخطوات القادمة -->
+  <section>
+    <div class="sec-title"><span class="dot"></span> الخطوات القادمة المقترحة</div>
+    <div class="card">
+      <ul class="clean">
+        <li>توثيق دومين في Resend وضبط SMTP المخصّص في Supabase (يحلّ مشكلتَي الإيميل دفعة واحدة).</li>
+        <li>إعادة تفعيل "Confirm email" بعد ضبط SMTP لأمان أعلى.</li>
+        <li>تفعيل Google OAuth إن رغبت بتسجيل أسرع.</li>
+        <li>إضافة "تغيير كلمة المرور" وتصحيح توقيت لوحة "اليوم".</li>
+        <li>ربط Vercel بـ GitHub للنشر التلقائي عند كل تحديث.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="footer">
+    Karam OS — أُنشئ وتم التحقق منه فعلياً · التطبيق المباشر: karam-os.vercel.app
+  </div>
+
+</div>
+</body>
+</html>
