@@ -13,6 +13,10 @@ type Mode = "login" | "signup";
 export function AuthForm({ mode }: { mode: Mode }) {
   const { t } = useI18n();
   const router = useRouter();
+  const nextUrl =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("next") || "/"
+      : "/";
   const supabase = createClient();
 
   const [email, setEmail] = useState("");
@@ -53,7 +57,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       });
       setLoading(false);
       if (error) return setError(error.message);
-      router.replace("/");
+      router.replace(nextUrl);
       router.refresh();
     }
   }

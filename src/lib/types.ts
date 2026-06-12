@@ -60,3 +60,48 @@ export type HabitLog = {
 export type HabitWithLogs = Habit & {
   logs: HabitLog[];
 };
+
+export type Team = {
+  id: string;
+  owner_id: string;
+  name: string;
+  created_at: string;
+};
+
+export type TeamMember = {
+  id: string;
+  team_id: string;
+  user_id: string;
+  role: "owner" | "editor";
+  joined_at: string;
+  profile?: { full_name: string | null; email: string | null };
+};
+
+export type TeamInvite = {
+  id: string;
+  team_id: string;
+  token: string;
+  created_by: string;
+  created_at: string;
+};
+
+export type TaskComment = {
+  id: string;
+  task_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  profile?: { full_name: string | null; email: string | null };
+};
+
+export type IdeaStatus = "new" | "in_progress" | "done";
+
+export type Idea = {
+  id: string;
+  user_id: string;
+  title: string;
+  body: string | null;
+  ai_suggestion: string | null;
+  status: IdeaStatus;
+  created_at: string;
+};

@@ -185,6 +185,48 @@ export const ClockIcon = (p: P) => (
     <path d="M12 6v6l4 2" />
   </svg>
 );
+export const UsersIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+export const MessageIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+export const CopyIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <rect x="9" y="9" width="13" height="13" rx="2" />
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+  </svg>
+);
+export const LinkIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+  </svg>
+);
+export const UserPlusIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM20 8v6M23 11h-6" />
+  </svg>
+);
+export const RefreshIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+  </svg>
+);
+export const LightbulbIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.6-1.4 4.9-3.5 6.2V17a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-1.8A7 7 0 0 1 5 9a7 7 0 0 1 7-7z" />
+  </svg>
+);
+export const SendIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M22 2 11 13M22 2 15 22l-4-9-9-4 20-7z" />
+  </svg>
+);
+
 export const HabitsIcon = (p: P) => (
   <svg {...base} {...p}>
     <path d="M12 22c4.97 0 9-3.58 9-8 0-3-1.5-5.5-4-7.5 0 2-1 3.5-2.5 4.5C14 9 13 7 13 5c-2 1.5-3 4-3 6.5 0 .5.05 1 .15 1.5C9.05 12.5 8.5 11.5 8.5 10.5c-1.5 1.5-2.5 4-2.5 6 0 3 2.5 5.5 6 5.5z" />

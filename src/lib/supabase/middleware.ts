@@ -37,6 +37,10 @@ export async function updateSession(request: NextRequest) {
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    // preserve join link so user lands back after login
+    if (path.startsWith("/join/")) {
+      url.searchParams.set("next", path);
+    }
     return NextResponse.redirect(url);
   }
 

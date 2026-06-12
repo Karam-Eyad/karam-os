@@ -243,3 +243,139 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect("/login");
 }
+
+/* ---------- Team ---------- */
+
+export async function createTeam(formData: FormData) {
+  const { supabase, user } = await requireUser();
+  const name = String(formData.get("name") || "").trim();
+  if (!name) return;
+
+  const { data: team } = await supabase
+    .from("teams")
+    .insert({ owner_id: user.id, name })
+    .select()
+    .single();
+
+  if (team) {
+    // add owner as member
+    await supabase.from("team_members").insert({
+      team_id: team.id,
+      user_id: user.id,
+      role: "owner",
+    });
+    // generate initial invite token
+    await supabase.from("team_invites").insert({
+      team_id: team.id,
+      created_by: user.id,
+    });
+  }
+  revalidateApp();
+}
+
+export async function regenerateInviteToken(formData: FormData) {
+  const { supabase, user } = await requireUser();
+  const team_id = String(formData.get("team_id"));
+  // delete old tokens
+  await supabase.from("team_invites").delete().eq("team_id", team_id);
+  // create new one
+  await supabase.from("team_invites").insert({
+    team_id,
+    created_by: user.id,
+  });
+  revalidateApp();
+}
+
+export async function joinTeamByToken(token: string) {
+  const { supabase, user } = await requireUser();
+  const { data: invite } = await supabase
+    .from("team_invites")
+    .select("team_id")
+    .eq("token", token)
+    .single();
+
+  if (!invite) return { error: "invalid_token" };
+
+  // check not already a member
+  const { data: existing } = await supabase
+    .from("team_members")
+    .select("id")
+    .eq("team_id", invite.team_id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!existing) {
+    await supabase.from("team_members").insert({
+      team_id: invite.team_id,
+      user_id: user.id,
+      role: "editor",
+    });
+  }
+  revalidateApp();
+  return { teamId: invite.team_id };
+}
+
+export async function removeMember(formData: FormData) {
+  const { supabase } = await requireUser();
+  const member_id = String(formData.get("member_id"));
+  await supabase.from("team_members").delete().eq("id", member_id);
+  revalidateApp();
+}
+
+export async function createTeamTask(formData: FormData) {
+  const { supabase, user } = await requireUser();
+  const title = String(formData.get("title") || "").trim();
+  const team_id = String(formData.get("team_id"));
+  if (!title || !team_id) return;
+  await supabase.from("tasks").insert({
+    user_id: user.id,
+    team_id,
+    title,
+    description: String(formData.get("description") || "").trim() || null,
+    due_date: String(formData.get("due_date") || "") || null,
+    priority: (String(formData.get("priority") || "medium") as Priority),
+    status: (String(formData.get("status") || "todo") as Status),
+    recurrence: "none" as Recurrence,
+    project_id: String(formData.get("project_id") || "") || null,
+  });
+  revalidateApp();
+}
+
+export async function createTeamProject(formData: FormData) {
+  const { supabase, user } = await requireUser();
+  const name = String(formData.get("name") || "").trim();
+  const team_id = String(formData.get("team_id"));
+  if (!name || !team_id) return;
+  await supabase.from("projects").insert({
+    user_id: user.id,
+    team_id,
+    name,
+    track: String(formData.get("track") || "").trim() || null,
+    color: String(formData.get("color") || "#4f46e5"),
+  });
+  revalidateApp();
+}
+
+/* ---------- Comments ---------- */
+
+export async function addComment(formData: FormData) {
+  const { supabase, user } = await requireUser();
+  const task_id = String(formData.get("task_id"));
+  const content = String(formData.get("content") || "").trim();
+  if (!content || !task_id) return;
+  await supabase.from("task_comments").insert({
+    task_id,
+    user_id: user.id,
+    content,
+  });
+  revalidateApp();
+}
+
+export async function deleteComment(formData: FormData) {
+  const { supabase } = await requireUser();
+  await supabase
+    .from("task_comments")
+    .delete()
+    .eq("id", String(formData.get("id")));
+  revalidateApp();
+}

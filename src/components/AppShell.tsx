@@ -18,6 +18,7 @@ import {
   LogoutIcon,
   MenuIcon,
   HabitsIcon,
+  UsersIcon,
 } from "./icons";
 
 export function AppShell({
@@ -40,6 +41,7 @@ export function AppShell({
     { href: "/habits", label: t.habits, icon: HabitsIcon },
     { href: "/projects", label: t.projects, icon: ProjectsIcon },
     { href: "/tasks", label: t.allTasks, icon: TasksIcon },
+    { href: "/team", label: t.team, icon: UsersIcon },
     { href: "/settings", label: t.settings, icon: SettingsIcon },
   ];
 
