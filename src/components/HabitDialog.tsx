@@ -86,14 +86,15 @@ export function HabitDialog({
 
       {/* Modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto p-0 sm:items-center sm:p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto">
           <div
             className="fixed inset-0 bg-black/50 animate-fade-in"
             onClick={close}
           />
-          <div className="animate-slide-up relative my-auto flex max-h-[92dvh] w-full max-w-md flex-col rounded-t-2xl sm:max-h-[88dvh] sm:rounded-2xl border border-border bg-surface shadow-pop">
+          <div className="flex min-h-full items-end justify-center sm:items-center sm:p-4">
+          <div className="animate-slide-up relative z-10 w-full max-w-md rounded-t-2xl sm:rounded-2xl border border-border bg-surface shadow-pop">
             {/* Header */}
-            <div className="flex shrink-0 items-center justify-between border-b border-border px-5 py-4">
+            <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-2xl border-b border-border bg-surface px-5 py-4">
               <h2 className="text-base font-bold">
                 {habit ? t.editHabit : t.newHabit}
               </h2>
@@ -106,7 +107,7 @@ export function HabitDialog({
             </div>
 
             {/* Form */}
-            <form ref={formRef} onSubmit={handleSubmit} className="overflow-y-auto p-5 space-y-5">
+            <form ref={formRef} onSubmit={handleSubmit} className="p-5 space-y-5">
               {/* Name */}
               <div>
                 <label className="eyebrow mb-1.5 block">{t.habitName}</label>
@@ -204,6 +205,7 @@ export function HabitDialog({
                 </button>
               </div>
             </form>
+          </div>
           </div>
         </div>
       )}
