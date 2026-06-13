@@ -6,18 +6,15 @@ import { PageHeader } from "@/components/PageHeader";
 import { TaskItem } from "@/components/TaskItem";
 import { TaskDialog } from "@/components/TaskDialog";
 import { clsx } from "@/lib/clsx";
-import type { Project, Status, TaskWithProject } from "@/lib/types";
+import { useTasks, useProjects } from "@/lib/hooks";
+import type { Status } from "@/lib/types";
 
 type Filter = "all" | Status;
 
-export function AllTasksView({
-  tasks,
-  projects,
-}: {
-  tasks: TaskWithProject[];
-  projects: Pick<Project, "id" | "name" | "color">[];
-}) {
+export function AllTasksView() {
   const { t } = useI18n();
+  const { data: tasks = [], isLoading: tasksLoading } = useTasks();
+  const { data: projects = [] } = useProjects();
   const [filter, setFilter] = useState<Filter>("all");
   const [projectId, setProjectId] = useState<string>("");
 
@@ -37,6 +34,15 @@ export function AllTasksView({
       ),
     [tasks, filter, projectId]
   );
+
+  if (tasksLoading)
+    return (
+      <div className="animate-pulse space-y-3 pt-4">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="h-14 rounded-xl bg-surface-2" />
+        ))}
+      </div>
+    );
 
   return (
     <div className="animate-rise">

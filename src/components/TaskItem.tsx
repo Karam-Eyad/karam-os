@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useI18n } from "@/lib/i18n/context";
 import { clsx } from "@/lib/clsx";
-import { toggleTask, deleteTask } from "@/app/actions";
+import { clientToggleTask, clientDeleteTask } from "@/lib/client-mutations";
 import { TaskDialog } from "./TaskDialog";
 import { CheckIcon, RepeatIcon, TrashIcon } from "./icons";
 import { isPast } from "@/lib/date";
@@ -25,19 +25,21 @@ export function TaskItem({
   showDate?: boolean;
 }) {
   const { t, locale } = useI18n();
-  // Optimistic local state — flip immediately on click; server syncs in bg.
+  // Optimistic local state — flip immediately; Supabase syncs in bg.
   const [done, setDone] = useState(task.status === "done");
-  const [, startTransition] = useTransition();
-
   const overdue = !done && task.due_date && isPast(task.due_date);
 
   function handleToggle() {
-    setDone((prev) => !prev); // instant visual feedback
-    startTransition(async () => {
-      const fd = new FormData();
-      fd.set("id", task.id);
-      await toggleTask(fd);
-    });
+    const prev = done;
+    setDone(!prev);
+    clientToggleTask(task.id, prev ? "done" : "todo", {
+      title: task.title,
+      description: task.description ?? null,
+      due_date: task.due_date ?? null,
+      priority: task.priority,
+      recurrence: task.recurrence,
+      project_id: task.project_id ?? null,
+    }).catch(() => setDone(prev)); // revert on error
   }
 
   return (
@@ -113,15 +115,13 @@ export function TaskItem({
 
       <div className="flex items-center gap-0.5 opacity-0 transition group-hover:opacity-100">
         <TaskDialog projects={projects} task={task} />
-        <form action={deleteTask}>
-          <input type="hidden" name="id" value={task.id} />
-          <button
-            aria-label={t.delete}
-            className="transition-base grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-red-500/10 hover:text-red-500"
-          >
-            <TrashIcon width={15} height={15} />
-          </button>
-        </form>
+        <button
+          onClick={() => clientDeleteTask(task.id)}
+          aria-label={t.delete}
+          className="transition-base grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-red-500/10 hover:text-red-500"
+        >
+          <TrashIcon width={15} height={15} />
+        </button>
       </div>
     </div>
   );

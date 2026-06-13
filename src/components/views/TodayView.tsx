@@ -7,43 +7,51 @@ import { TaskItem } from "@/components/TaskItem";
 import { TaskDialog } from "@/components/TaskDialog";
 import { HabitRing } from "@/components/HabitRing";
 import { HabitIconRenderer } from "@/components/icons";
-import type { Project, TaskWithProject, HabitWithLogs } from "@/lib/types";
+import { useTodayTasks, useProjects, useHabits } from "@/lib/hooks";
+import { todayISO as getTodayISO } from "@/lib/date";
 
-export function TodayView({
-  userName,
-  overdue,
-  today,
-  projects,
-  todayISO,
-  habits,
-}: {
-  userName: string;
-  overdue: TaskWithProject[];
-  today: TaskWithProject[];
-  projects: Pick<Project, "id" | "name" | "color">[];
-  todayISO: string;
-  habits?: HabitWithLogs[];
-}) {
+export function TodayView({ userName }: { userName: string }) {
   const { t, locale } = useI18n();
+  const todayISO = getTodayISO();
+  const { data: allTodayTasks = [], isLoading } = useTodayTasks();
+  const { data: projects = [] } = useProjects();
+  const { data: habits = [] } = useHabits(todayISO);
 
-  const doneCount = today.filter((x) => x.status === "done").length;
+  // Split tasks into overdue and today
+  const today = new Date().toISOString().slice(0, 10);
+  const overdue = allTodayTasks.filter((t) => t.due_date && t.due_date < today);
+  const todayTasks = allTodayTasks.filter(
+    (t) => !t.due_date || t.due_date === today
+  );
+
+  if (isLoading)
+    return (
+      <div className="animate-pulse space-y-3 pt-10">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-14 rounded-xl bg-surface-2" />
+        ))}
+      </div>
+    );
+
+  const doneCount = todayTasks.filter((x) => x.status === "done").length;
   const dateLabel = new Date().toLocaleDateString(
     locale === "ar" ? "ar" : "en-US",
     { weekday: "long", day: "numeric", month: "long" }
   );
 
   const stats = [
-    { label: t.today, value: today.length },
+    { label: t.today, value: todayTasks.length },
     { label: t.completed, value: doneCount },
     { label: t.overdue, value: overdue.length },
   ];
 
   // Habits mini section
-  const habitsDone = (habits ?? []).filter((h) =>
+  const habitsDone = habits.filter((h) =>
     h.logs.some((l) => l.completed_date === todayISO)
   ).length;
-  const habitsTotal = (habits ?? []).length;
-  const habitsPct = habitsTotal > 0 ? Math.round((habitsDone / habitsTotal) * 100) : 0;
+  const habitsTotal = habits.length;
+  const habitsPct =
+    habitsTotal > 0 ? Math.round((habitsDone / habitsTotal) * 100) : 0;
 
   return (
     <div className="animate-rise">
@@ -79,7 +87,7 @@ export function TodayView({
               </p>
             </div>
             <div className="flex -space-x-1">
-              {(habits ?? []).slice(0, 5).map((h) => (
+              {habits.slice(0, 5).map((h) => (
                 <div
                   key={h.id}
                   className="grid h-7 w-7 place-items-center rounded-full border-2 border-surface"
@@ -114,10 +122,10 @@ export function TodayView({
       <section>
         <p className="eyebrow mb-2.5">{t.todaySummary}</p>
         <div className="space-y-2">
-          {today.length === 0 ? (
+          {todayTasks.length === 0 ? (
             <EmptyToday text={t.noTasks} />
           ) : (
-            today.map((task) => (
+            todayTasks.map((task) => (
               <TaskItem
                 key={task.id}
                 task={task}

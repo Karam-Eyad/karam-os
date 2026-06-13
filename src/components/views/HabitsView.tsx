@@ -8,25 +8,15 @@ import { HabitDialog } from "@/components/HabitDialog";
 import { HabitCompletionChart } from "@/components/HabitCompletionChart";
 import { HabitRing } from "@/components/HabitRing";
 import { deleteHabit } from "@/app/actions";
-import { FireIcon, AwardIcon, TrendingUpIcon } from "@/components/icons";
+import { FireIcon, TrendingUpIcon } from "@/components/icons";
 import { clsx } from "@/lib/clsx";
+import { useHabits, useHabitChartData } from "@/lib/hooks";
+import { todayISO } from "@/lib/date";
 import type { HabitWithLogs } from "@/lib/types";
 
-interface DayPoint {
-  date: string;
-  total: number;
-  done: number;
-}
-
-interface HabitsViewProps {
-  habits: HabitWithLogs[];
-  todayISO: string;
-  chartData: DayPoint[];
-}
-
-function calcGlobalStreak(habits: HabitWithLogs[], todayISO: string): number {
+function calcGlobalStreak(habits: HabitWithLogs[], todayStr: string): number {
   if (!habits.length) return 0;
-  const today = new Date(todayISO);
+  const today = new Date(todayStr);
   let streak = 0;
   let cursor = new Date(today);
   for (let i = 0; i < 365; i++) {
@@ -41,18 +31,30 @@ function calcGlobalStreak(habits: HabitWithLogs[], todayISO: string): number {
   return streak;
 }
 
-export function HabitsView({ habits, todayISO, chartData }: HabitsViewProps) {
+export function HabitsView() {
   const { t } = useI18n();
+  const today = todayISO();
+  const { data: habits = [], isLoading } = useHabits(today);
+  const { data: chartData = [] } = useHabitChartData(today);
   const [editingHabit, setEditingHabit] = useState<HabitWithLogs | null>(null);
-  const [deletePending, startDelete] = useTransition();
+  const [, startDelete] = useTransition();
+
+  if (isLoading)
+    return (
+      <div className="animate-pulse space-y-3 pt-4">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="h-14 rounded-xl bg-surface-2" />
+        ))}
+      </div>
+    );
 
   const todayDone = habits.filter((h) =>
-    h.logs.some((l) => l.completed_date === todayISO)
+    h.logs.some((l) => l.completed_date === today)
   ).length;
   const todayTotal = habits.length;
   const todayPct = todayTotal > 0 ? Math.round((todayDone / todayTotal) * 100) : 0;
 
-  const bestStreak = calcGlobalStreak(habits, todayISO);
+  const bestStreak = calcGlobalStreak(habits, today);
 
   const avgRate =
     habits.length > 0
@@ -136,7 +138,7 @@ export function HabitsView({ habits, todayISO, chartData }: HabitsViewProps) {
               >
                 <HabitItem
                   habit={habit}
-                  todayISO={todayISO}
+                  todayISO={today}
                   onEdit={setEditingHabit}
                   onDelete={handleDelete}
                 />

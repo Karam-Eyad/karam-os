@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { toggleHabitLog } from "@/app/actions";
+import { clientToggleHabitLog } from "@/lib/client-mutations";
 import { HabitRing } from "./HabitRing";
 import { HabitIconRenderer, FireIcon, TrashIcon, EditIcon } from "./icons";
 import { clsx } from "@/lib/clsx";
@@ -62,13 +62,13 @@ export function HabitItem({
   const rate = calcCompletionRate(habit.logs);
 
   function handleToggle() {
-    setCompletedToday((prev) => !prev); // instant visual feedback
-    startTransition(async () => {
-      const fd = new FormData();
-      fd.append("habit_id", habit.id);
-      fd.append("date", todayISO);
-      fd.append("completed", completedToday ? "true" : "false");
-      await toggleHabitLog(fd);
+    const prev = completedToday;
+    setCompletedToday(!prev);
+    startTransition(() => {
+      clientToggleHabitLog(habit.id, todayISO, prev).catch(() =>
+        setCompletedToday(prev) // revert on error
+      );
+      return Promise.resolve();
     });
   }
 
