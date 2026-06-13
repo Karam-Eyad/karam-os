@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مسار — أدوات الإنتاجية الذكية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;600&family=Noto+Sans+Arabic:wght@300;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans Arabic', sans-serif;
+      background: #0B0B12;
+      color: #F1F1F6;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: #0B0B12; }
+    ::-webkit-scrollbar-thumb { background: #2A2A3E; border-radius: 3px; }
+
+    .bg-gradient {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+    }
+    .bg-gradient::before {
+      content: ''; position: absolute;
+      top: -200px; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 500px;
+      background: radial-gradient(ellipse at center, rgba(99,102,241,0.06) 0%, transparent 68%);
+    }
+    .bg-gradient::after {
+      content: ''; position: absolute;
+      bottom: -200px; right: -100px;
+      width: 500px; height: 500px;
+      background: radial-gradient(ellipse at center, rgba(139,92,246,0.04) 0%, transparent 68%);
+    }
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(80px); opacity: 0.3;
+    }
+    .orb-1 {
+      top: 10%; left: -5%;
+      width: 300px; height: 300px;
+      background: rgba(99,102,241,0.12);
+      animation: orbFloat 20s ease-in-out infinite;
+    }
+    .orb-2 {
+      bottom: 15%; right: -5%;
+      width: 250px; height: 250px;
+      background: rgba(139,92,246,0.1);
+      animation: orbFloat 25s ease-in-out infinite reverse;
+    }
+    @keyframes orbFloat {
+      0%,100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -40px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.95); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .app {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 24px 100px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .header {
+      text-align: center;
+      padding: 64px 0 48px;
+      animation: fadeDown 0.8s cubic-bezier(.4,0,.2,1) both;
+    }
+    .logo {
+      display: inline-flex; align-items: center; gap: 10px;
+      margin-bottom: 24px;
+    }
+    .logo-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 600; color: #fff;
+    }
+    .logo-text {
+      font-size: 1.3rem; font-weight: 500; color: #F1F1F6;
+    }
+    .header h1 {
+      font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+      font-weight: 300; line-height: 1.3;
+      margin-bottom: 14px;
+      color: #F1F1F6;
+    }
+    .header h1 strong {
+      font-weight: 600;
+      background: linear-gradient(135deg, #818cf8, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header-sub {
+      font-size: 0.95rem; color: #8888A0;
+      line-height: 1.9; font-weight: 300;
+      max-width: 460px; margin: 0 auto 28px;
+    }
+    .tags {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      justify-content: center;
+    }
+    .tag {
+      padding: 5px 14px; border-radius: 50px;
+      border: 1px solid rgba(99,102,241,0.2);
+      background: rgba(99,102,241,0.06);
+      font-size: 0.75rem; color: #9898C0; font-weight: 300;
+    }
+
+    .card {
+      background: rgba(20,20,31,0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(99,102,241,0.12);
+      border-radius: 20px;
+      padding: 24px 28px;
+      transition: border-color 0.3s ease, transform 0.25s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      border-color: rgba(99,102,241,0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 40px rgba(99,102,241,0.06);
+    }
+
+    .card-row { display: flex; align-items: flex-start; gap: 20px; }
+    .card-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
+      border: 1px solid rgba(99,102,241,0.15);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 1.3rem;
+    }
+    .card-body { flex: 1; }
+    .card-title {
+      font-size: 1.1rem; font-weight: 600; margin-bottom: 6px;
+    }
+    .card-desc {
+      font-size: 0.85rem; color: #8888A0; line-height: 1.8;
+      font-weight: 300; margin-bottom: 14px;
+    }
+    .card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .card-tag {
+      padding: 3px 10px; border-radius: 50px;
+      border: 1px solid rgba(99,102,241,0.12); background: rgba(99,102,241,0.04);
+      font-size: 0.7rem; color: #9898C0; font-weight: 300;
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 22px; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 500; text-decoration: none;
+      cursor: pointer; transition: all 0.2s ease;
+      border: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(99,102,241,0.3);
+    }
+    .btn-ghost {
+      background: transparent; color: #9898C0;
+      border: 1px solid rgba(99,102,241,0.2);
+    }
+    .btn-ghost:hover { border-color: rgba(99,102,241,0.4); color: #F1F1F6; }
+    .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .section-divider {
+      width: 100%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.15), transparent);
+      margin: 32px 0;
+    }
+
+    .section-title {
+      font-size: 1rem; font-weight: 500; margin-bottom: 16px;
+      color: #F1F1F6;
+    }
+
+    .steps {
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .step {
+      display: flex; align-items: flex-start; gap: 14px;
+      font-size: 0.85rem; font-weight: 300; color: #8888A0;
+      line-height: 1.7;
+    }
+    .step-num {
+      width: 26px; height: 26px; border-radius: 8px;
+      background: rgba(99,102,241,0.12);
+      border: 1px solid rgba(99,102,241,0.15);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.75rem; font-weight: 600; color: #a78bfa;
+    }
+    .step strong { color: #D1D1E0; font-weight: 500; }
+
+    .links-card {
+      background: rgba(20,20,31,0.6);
+      border: 1px solid rgba(99,102,241,0.1);
+      border-radius: 16px;
+      padding: 16px 20px;
+    }
+    .link-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0;
+      color: #F1F1F6; text-decoration: none;
+      font-size: 0.9rem; font-weight: 300;
+      transition: color 0.2s;
+    }
+    .link-item:hover { color: #a78bfa; }
+    .link-item .link-icon { color: #6366f1; font-size: 1rem; }
+    .link-divider { height: 1px; background: rgba(99,102,241,0.08); }
+
+    .footer {
+      text-align: center; padding: 40px 0 20px;
+      font-size: 0.8rem; color: #555570; font-weight: 300;
+    }
+    .footer a { color: #8888A0; text-decoration: none; transition: color 0.2s; }
+    .footer a:hover { color: #a78bfa; }
+
+    .resources { display: flex; flex-direction: column; gap: 20px; }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <div class="app">
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">م</div>
+        <span class="logo-text">مسار</span>
+      </div>
+      <h1>أدوات <strong>الإنتاجية الذكية</strong></h1>
+      <p class="header-sub">مصمّمة للمبدعين والمطورين — برومبت احترافي للذكاء الاصطناعي ونظام متكامل لإدارة المهام والعادات والمشاريع</p>
+      <div class="tags">
+        <span class="tag">Prompt Builder</span>
+        <span class="tag">6 عناصر احترافية</span>
+        <span class="tag">إدارة المهام</span>
+        <span class="tag">المشاريع</span>
+      </div>
+    </div>
+
+    <div class="resources">
+      <div class="card" style="animation: fadeUp 0.6s cubic-bezier(.4,0,.2,1) both; animation-delay: 0.2s;">
+        <div class="card-row">
+          <div class="card-icon">🧩</div>
+          <div class="card-body">
+            <div class="card-title">Prompt Builder</div>
+            <div class="card-desc">
+              إطار متكامل من 6 عناصر (Role — Task — Context — Reasoning — Stop Conditions — Output) لبناء برومبتات احترافية لأي ذكاء اصطناعي. يعمل مع <strong>Cursor</strong> و <strong>VS Code</strong> و <strong>Windsurf</strong> وأي محرر يدعم .skill files.
+            </div>
+            <div class="card-tags">
+              <span class="card-tag">AI Prompts</span>
+              <span class="card-tag">Cursor</span>
+              <span class="card-tag">VS Code</span>
+              <span class="card-tag">.skill</span>
+            </div>
+            <div class="btn-group">
+              <a href="/prompt_builder.skill" class="btn btn-primary" download>📥 تحميل الملف</a>
+              <a href="#usage" class="btn btn-ghost">📖 طريقة الاستخدام</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="animation: fadeUp 0.6s cubic-bezier(.4,0,.2,1) both; animation-delay: 0.35s;">
+        <div class="card-row">
+          <div class="card-icon">🌙</div>
+          <div class="card-body">
+            <div class="card-title">مسار</div>
+            <div class="card-desc">
+              نظام متكامل لإدارة المهام والعادات والمشاريع — كل شيء في مكان واحد. نظّم يومك، تابع عاداتك، أنجز مشاريعك بذكاء.
+            </div>
+            <div class="card-tags">
+              <span class="card-tag">Task Management</span>
+              <span class="card-tag">Habits</span>
+              <span class="card-tag">Projects</span>
+            </div>
+            <div class="btn-group">
+              <a href="https://karam-os.vercel.app" class="btn btn-primary" target="_blank">🚀 افتح مسار</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div id="usage" style="animation: fadeUp 0.6s cubic-bezier(.4,0,.2,1) both; animation-delay: 0.5s;">
+      <div class="section-title">🎯 كيف تستخدم Prompt Builder</div>
+      <div class="card" style="padding: 20px 24px;">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div><strong>حمل الملف</strong> — استخدم زر التحميل بالأعلى</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div><strong>اسحبه لمحررك</strong> — Cursor, VS Code, Windsurf أو أي محرر يدعم .skill</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div><strong>اطلب برومبت</strong> — اكتب "ابني لي برومبت لـ..." وهو بيطبّق الإطار الكامل</div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div><strong>انسخ واستخدم</strong> — برومبت جاهز من 6 عناصر احترافية</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div style="animation: fadeUp 0.6s cubic-bezier(.4,0,.2,1) both; animation-delay: 0.65s;">
+      <div class="section-title">⚡ روابط سريعة</div>
+      <div class="links-card">
+        <a href="https://karam-os.vercel.app" target="_blank" class="link-item">
+          <span class="link-icon">🔗</span> مسار — karam-os.vercel.app
+        </a>
+        <div class="link-divider"></div>
+        <a href="/prompt_builder.skill" download class="link-item">
+          <span class="link-icon">🔗</span> Prompt Builder — تحميل مباشر (prompt_builder.skill)
+        </a>
+      </div>
+    </div>
+
+    <div class="footer">
+      <a href="https://instagram.com/karameyad._" target="_blank">@karameyad._</a>
+    </div>
+  </div>
+</body>
+</html>

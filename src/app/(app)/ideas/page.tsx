@@ -1,15 +1,12 @@
 import { cookies } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
+import { getServerUser } from "@/lib/supabase/server";
 import { IdeasView } from "@/components/views/IdeasView";
 import type { Idea } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function IdeasPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getServerUser();
 
   const { data: ideas } = await supabase
     .from("ideas")

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getServerUser } from "@/lib/supabase/server";
 import { TeamView } from "@/components/views/TeamView";
 import type {
   Team,
@@ -12,10 +12,7 @@ import type {
 export const dynamic = "force-dynamic";
 
 export default async function TeamPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getServerUser();
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://karam-os.vercel.app";

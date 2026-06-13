@@ -8,11 +8,14 @@ import type { IdeaStatus, Priority, Recurrence, Status } from "@/lib/types";
 
 async function requireUser() {
   const supabase = await createClient();
+  // getSession() reads the JWT from the cookie locally — no Supabase Auth
+  // network call needed. RLS on the DB enforces authorization via auth.uid()
+  // from the signed JWT, so this is secure for mutating server actions.
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-  return { supabase, user };
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user) redirect("/login");
+  return { supabase, user: session.user };
 }
 
 function revalidateApp() {

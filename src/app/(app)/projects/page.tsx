@@ -1,11 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
+import { getServerUser } from "@/lib/supabase/server";
 import { ProjectsView } from "@/components/views/ProjectsView";
 import type { Project } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProjectsPage() {
-  const supabase = await createClient();
+  const { supabase } = await getServerUser();
   const [{ data: projects }, { data: tasks }] = await Promise.all([
     supabase.from("projects").select("*").order("created_at"),
     supabase.from("tasks").select("project_id, status"),

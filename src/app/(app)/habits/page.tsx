@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getServerUser } from "@/lib/supabase/server";
 import { todayISO } from "@/lib/date";
 import { HabitsView } from "@/components/views/HabitsView";
 import type { HabitWithLogs } from "@/lib/types";
@@ -17,10 +17,7 @@ function getLast30Days(today: string): string[] {
 }
 
 export default async function HabitsPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getServerUser();
 
   const today = todayISO();
   const last30 = getLast30Days(today);

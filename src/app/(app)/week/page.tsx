@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getServerUser } from "@/lib/supabase/server";
 import { addDays, toISODate, todayISO, weekDates } from "@/lib/date";
 import { WeekView } from "@/components/views/WeekView";
 import type { TaskWithProject } from "@/lib/types";
@@ -18,7 +18,7 @@ export default async function WeekPage({
   const start = days[0];
   const end = days[6];
 
-  const supabase = await createClient();
+  const { supabase } = await getServerUser();
   const [{ data: projects }, { data: tasks }] = await Promise.all([
     supabase.from("projects").select("id, name, color").order("created_at"),
     supabase

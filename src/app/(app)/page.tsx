@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getServerUser } from "@/lib/supabase/server";
 import { todayISO } from "@/lib/date";
 import { TodayView } from "@/components/views/TodayView";
 import type { TaskWithProject, HabitWithLogs } from "@/lib/types";
@@ -17,10 +17,7 @@ function getLast30Days(today: string): string[] {
 }
 
 export default async function TodayPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getServerUser();
 
   const today = todayISO();
   const thirtyDaysAgo = getLast30Days(today)[0];
