@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       : "https://api.deepseek.com");
   const model =
     process.env.AI_MODEL ||
-    (isNvidia ? "deepseek-ai/deepseek-v4-flash" : "deepseek-chat");
+    (isNvidia ? "meta/llama-3.1-8b-instruct" : "deepseek-chat");
 
   let title = "";
   let body = "";
@@ -80,6 +80,7 @@ export async function POST(req: Request) {
           { role: "system", content: system },
           { role: "user", content: userMsg },
         ],
+        stream: false,
         temperature: 0.7,
         max_tokens: 350,
       }),
