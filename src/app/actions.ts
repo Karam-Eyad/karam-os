@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { addDays, toISODate } from "@/lib/date";
-import type { Priority, Recurrence, Status } from "@/lib/types";
+import type { IdeaStatus, Priority, Recurrence, Status } from "@/lib/types";
 
 async function requireUser() {
   const supabase = await createClient();
@@ -391,5 +391,68 @@ export async function deleteComment(formData: FormData) {
     .from("task_comments")
     .delete()
     .eq("id", String(formData.get("id")));
+  revalidateApp();
+}
+
+/* ---------- Ideas ---------- */
+
+export async function createIdea(formData: FormData) {
+  const { supabase, user } = await requireUser();
+  const title = String(formData.get("title") || "").trim();
+  if (!title) return;
+  await supabase.from("ideas").insert({
+    user_id: user.id,
+    title,
+    body: String(formData.get("body") || "").trim() || null,
+    status: "new" as IdeaStatus,
+  });
+  revalidateApp();
+}
+
+export async function deleteIdea(formData: FormData) {
+  const { supabase } = await requireUser();
+  await supabase.from("ideas").delete().eq("id", String(formData.get("id")));
+  revalidateApp();
+}
+
+export async function updateIdeaStatus(formData: FormData) {
+  const { supabase } = await requireUser();
+  const id = String(formData.get("id"));
+  const status = String(formData.get("status")) as IdeaStatus;
+  await supabase.from("ideas").update({ status }).eq("id", id);
+  revalidateApp();
+}
+
+// Persist the AI suggestion text onto an idea (called after the API returns).
+export async function saveIdeaSuggestion(id: string, suggestion: string) {
+  const { supabase } = await requireUser();
+  await supabase
+    .from("ideas")
+    .update({ ai_suggestion: suggestion })
+    .eq("id", id);
+  revalidateApp();
+}
+
+// Turn an idea into a project, then mark the idea as done.
+export async function convertIdeaToProject(formData: FormData) {
+  const { supabase, user } = await requireUser();
+  const id = String(formData.get("id"));
+  const { data: idea } = await supabase
+    .from("ideas")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (!idea) return;
+
+  await supabase.from("projects").insert({
+    user_id: user.id,
+    name: idea.title,
+    track: null,
+    color: "#4f46e5",
+  });
+  await supabase
+    .from("ideas")
+    .update({ status: "done" as IdeaStatus })
+    .eq("id", id);
   revalidateApp();
 }
