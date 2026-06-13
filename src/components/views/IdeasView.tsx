@@ -16,6 +16,7 @@ import {
   TrashIcon,
   ProjectsIcon,
   RefreshIcon,
+  ChevronDownIcon,
 } from "@/components/icons";
 import { clsx } from "@/lib/clsx";
 import type { Idea, IdeaStatus } from "@/lib/types";
@@ -172,13 +173,18 @@ function IdeaCard({ idea, locale }: { idea: Idea; locale: "ar" | "en" }) {
   async function getSuggestion() {
     setLoading(true);
     setErr(null);
+    // Hard client-side cap so the spinner never hangs forever, even if the
+    // serverless function times out or the network drops mid-stream.
+    const ac = new AbortController();
+    const killer = setTimeout(() => ac.abort(), 55_000);
     try {
       const res = await fetch("/api/ideas/suggest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: idea.title, body: idea.body, locale }),
+        signal: ac.signal,
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.suggestion) {
         setErr(t.suggestionError);
       } else {
@@ -188,6 +194,7 @@ function IdeaCard({ idea, locale }: { idea: Idea; locale: "ar" | "en" }) {
     } catch {
       setErr(t.suggestionError);
     } finally {
+      clearTimeout(killer);
       setLoading(false);
     }
   }
@@ -251,21 +258,28 @@ function IdeaCard({ idea, locale }: { idea: Idea; locale: "ar" | "en" }) {
           </form>
         )}
 
-        <select
-          value={idea.status}
-          onChange={(e) => {
-            const fd = new FormData();
-            fd.set("id", idea.id);
-            fd.set("status", e.target.value);
-            startTransition(() => updateIdeaStatus(fd));
-          }}
-          disabled={pending}
-          className="cursor-pointer rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs font-semibold outline-none hover:bg-surface-2 focus:border-primary transition-base disabled:opacity-60"
-        >
-          <option value="new">{t.statusNew}</option>
-          <option value="in_progress">{t.statusInProgress}</option>
-          <option value="done">{t.statusDone}</option>
-        </select>
+        <div className="relative">
+          <select
+            value={idea.status}
+            onChange={(e) => {
+              const fd = new FormData();
+              fd.set("id", idea.id);
+              fd.set("status", e.target.value);
+              startTransition(() => updateIdeaStatus(fd));
+            }}
+            disabled={pending}
+            className="cursor-pointer appearance-none rounded-lg border border-border bg-surface ps-2.5 pe-7 py-1.5 text-xs font-semibold leading-none outline-none hover:bg-surface-2 focus:border-primary transition-base disabled:opacity-60"
+          >
+            <option value="new">{t.statusNew}</option>
+            <option value="in_progress">{t.statusInProgress}</option>
+            <option value="done">{t.statusDone}</option>
+          </select>
+          <ChevronDownIcon
+            width={12}
+            height={12}
+            className="pointer-events-none absolute end-2 top-1/2 -translate-y-1/2 text-muted"
+          />
+        </div>
 
         <form action={deleteIdea} className="ms-auto">
           <input type="hidden" name="id" value={idea.id} />

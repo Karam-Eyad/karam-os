@@ -12,6 +12,11 @@ const base = {
   strokeLinejoin: "round" as const,
 };
 
+export const ChevronDownIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M6 9l6 6 6-6" />
+  </svg>
+);
 export const SunIcon = (p: P) => (
   <svg {...base} {...p}>
     <circle cx="12" cy="12" r="4" />
