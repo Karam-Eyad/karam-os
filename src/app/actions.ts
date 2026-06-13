@@ -251,25 +251,39 @@ export async function createTeam(formData: FormData) {
   const name = String(formData.get("name") || "").trim();
   if (!name) return;
 
-  const { data: team } = await supabase
+  // Guard: if the user already belongs to a team, don't create another.
+  const { data: already } = await supabase
+    .from("team_members")
+    .select("team_id")
+    .eq("user_id", user.id)
+    .limit(1);
+  if (already && already.length > 0) {
+    revalidateApp();
+    return;
+  }
+
+  const { data: team, error: teamErr } = await supabase
     .from("teams")
     .insert({ owner_id: user.id, name })
     .select()
     .single();
 
-  if (team) {
-    // add owner as member
-    await supabase.from("team_members").insert({
-      team_id: team.id,
-      user_id: user.id,
-      role: "owner",
-    });
-    // generate initial invite token
-    await supabase.from("team_invites").insert({
-      team_id: team.id,
-      created_by: user.id,
-    });
+  if (teamErr || !team) {
+    return { error: teamErr?.message ?? "create_failed" };
   }
+
+  // add owner as member
+  await supabase.from("team_members").insert({
+    team_id: team.id,
+    user_id: user.id,
+    role: "owner",
+  });
+  // generate initial invite token
+  await supabase.from("team_invites").insert({
+    team_id: team.id,
+    created_by: user.id,
+  });
+
   revalidateApp();
 }
 

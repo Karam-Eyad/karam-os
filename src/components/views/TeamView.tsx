@@ -47,6 +47,7 @@ interface TeamViewProps {
 function CreateTeamForm() {
   const { t } = useI18n();
   const [name, setName] = useState("");
+  const [err, setErr] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   return (
@@ -59,8 +60,12 @@ function CreateTeamForm() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          setErr(null);
           const fd = new FormData(e.currentTarget);
-          startTransition(() => createTeam(fd));
+          startTransition(async () => {
+            const res = await createTeam(fd);
+            if (res?.error) setErr(res.error);
+          });
         }}
         className="flex w-full max-w-sm gap-2"
       >
@@ -81,6 +86,7 @@ function CreateTeamForm() {
           {t.createTeam}
         </button>
       </form>
+      {err && <p className="mt-3 text-sm text-red-500">{err}</p>}
     </div>
   );
 }
@@ -227,101 +233,172 @@ function MembersCard({
   );
 }
 
-function QuickAddTask({
-  teamId,
-  projects,
-}: {
-  teamId: string;
-  projects: Project[];
-}) {
+function QuickAddTask({ teamId }: { teamId: string }) {
   const { t } = useI18n();
+  const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
+  const [priority, setPriority] = useState<"high" | "medium" | "low">("medium");
   const [pending, startTransition] = useTransition();
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!title.trim()) return;
+    const fd = new FormData();
+    fd.append("team_id", teamId);
+    fd.append("title", title);
+    fd.append("priority", priority);
+    startTransition(async () => {
+      await createTeamTask(fd);
+      setTitle("");
+      setOpen(false);
+    });
+  }
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="flex w-full items-center gap-2 rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted hover:border-primary hover:text-primary transition-base"
+      >
+        <PlusIcon width={16} height={16} />
+        {t.addTeamTask}
+      </button>
+    );
+  }
 
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (!title.trim()) return;
-        const fd = new FormData();
-        fd.append("team_id", teamId);
-        fd.append("title", title);
-        fd.append("priority", "medium");
-        startTransition(async () => {
-          await createTeamTask(fd);
-          setTitle("");
-        });
-      }}
-      className="flex gap-2"
+      onSubmit={submit}
+      className="animate-slide-up rounded-xl border border-primary/40 bg-surface p-4 space-y-3"
     >
       <input
+        autoFocus
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder={`${t.addTeamTask}...`}
-        className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring transition-base"
+        placeholder={`${t.title}...`}
+        className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring transition-base"
       />
-      <button
-        type="submit"
-        disabled={pending || !title.trim()}
-        className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-fg hover-lift transition-spring disabled:opacity-50"
-      >
-        <PlusIcon width={15} height={15} />
-      </button>
+      {/* Priority */}
+      <div className="flex gap-2">
+        {(["high", "medium", "low"] as const).map((p) => {
+          const colors = { high: "#ef4444", medium: "#f59e0b", low: "#10b981" };
+          const labels = { high: t.high, medium: t.medium, low: t.low };
+          return (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setPriority(p)}
+              className={clsx(
+                "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-base",
+                priority === p ? "border-transparent text-white" : "border-border text-muted hover:bg-surface-2"
+              )}
+              style={priority === p ? { background: colors[p] } : {}}
+            >
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: colors[p] }} />
+              {labels[p]}
+            </button>
+          );
+        })}
+      </div>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => { setOpen(false); setTitle(""); }}
+          className="flex-1 rounded-lg border border-border py-2 text-sm hover:bg-surface-2 transition-base"
+        >
+          {t.cancel}
+        </button>
+        <button
+          type="submit"
+          disabled={pending || !title.trim()}
+          className="flex-1 rounded-lg bg-primary py-2 text-sm font-semibold text-primary-fg hover-lift transition-spring disabled:opacity-50"
+        >
+          {t.save}
+        </button>
+      </div>
     </form>
   );
 }
 
 function QuickAddProject({ teamId }: { teamId: string }) {
   const { t } = useI18n();
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [pending, startTransition] = useTransition();
-
   const colors = ["#4f46e5", "#7c3aed", "#db2777", "#16a34a", "#ea580c", "#0891b2"];
   const [color, setColor] = useState(colors[0]);
 
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    const fd = new FormData();
+    fd.append("team_id", teamId);
+    fd.append("name", name);
+    fd.append("color", color);
+    startTransition(async () => {
+      await createTeamProject(fd);
+      setName("");
+      setOpen(false);
+    });
+  }
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="flex w-full items-center gap-2 rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted hover:border-primary hover:text-primary transition-base"
+      >
+        <PlusIcon width={16} height={16} />
+        {t.addTeamProject}
+      </button>
+    );
+  }
+
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (!name.trim()) return;
-        const fd = new FormData();
-        fd.append("team_id", teamId);
-        fd.append("name", name);
-        fd.append("color", color);
-        startTransition(async () => {
-          await createTeamProject(fd);
-          setName("");
-        });
-      }}
-      className="flex items-center gap-2"
+      onSubmit={submit}
+      className="animate-slide-up rounded-xl border border-primary/40 bg-surface p-4 space-y-3"
     >
-      <div className="flex gap-1">
+      <input
+        autoFocus
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder={`${t.projectName}...`}
+        className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring transition-base"
+      />
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-muted">{t.color}:</span>
         {colors.map((c) => (
           <button
             key={c}
             type="button"
             onClick={() => setColor(c)}
-            className={clsx(
-              "h-5 w-5 rounded-full transition-spring",
-              color === c ? "scale-125 ring-2 ring-offset-1 ring-offset-surface" : ""
-            )}
-            style={{ background: c, outlineColor: c }}
+            className="h-6 w-6 rounded-full transition-spring hover:scale-110"
+            style={{
+              background: c,
+              outline: color === c ? `2px solid ${c}` : "none",
+              outlineOffset: "2px",
+              transform: color === c ? "scale(1.2)" : undefined,
+            }}
           />
         ))}
       </div>
-      <input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder={`${t.addTeamProject}...`}
-        className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring transition-base"
-      />
-      <button
-        type="submit"
-        disabled={pending || !name.trim()}
-        className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-fg hover-lift transition-spring disabled:opacity-50"
-      >
-        <PlusIcon width={15} height={15} />
-      </button>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => { setOpen(false); setName(""); }}
+          className="flex-1 rounded-lg border border-border py-2 text-sm hover:bg-surface-2 transition-base"
+        >
+          {t.cancel}
+        </button>
+        <button
+          type="submit"
+          disabled={pending || !name.trim()}
+          className="flex-1 rounded-lg bg-primary py-2 text-sm font-semibold text-primary-fg hover-lift transition-spring disabled:opacity-50"
+        >
+          {t.save}
+        </button>
+      </div>
     </form>
   );
 }
@@ -482,7 +559,7 @@ export function TeamView({
             );
           })}
         </div>
-        <QuickAddTask teamId={team.id} projects={projects} />
+        <QuickAddTask teamId={team.id} />
       </section>
     </div>
   );

@@ -20,12 +20,16 @@ export default async function TeamPage() {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://karam-os.vercel.app";
 
-  // Find user's team (member of or owner)
-  const { data: memberRow } = await supabase
+  // Find user's team. Use limit(1) instead of maybeSingle so duplicate
+  // memberships (e.g. from earlier failed create attempts) don't throw.
+  const { data: memberRows } = await supabase
     .from("team_members")
     .select("team_id, role")
     .eq("user_id", user!.id)
-    .maybeSingle();
+    .order("joined_at", { ascending: true })
+    .limit(1);
+
+  const memberRow = memberRows?.[0] ?? null;
 
   if (!memberRow) {
     return (
