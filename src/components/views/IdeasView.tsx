@@ -163,6 +163,8 @@ function IdeaCard({ idea, locale }: { idea: Idea; locale: "ar" | "en" }) {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  // Language for the AI suggestion — independent of the app UI locale.
+  const [suggLocale, setSuggLocale] = useState<"ar" | "en">(locale);
 
   const statusLabel: Record<IdeaStatus, string> = {
     new: t.statusNew,
@@ -181,7 +183,7 @@ function IdeaCard({ idea, locale }: { idea: Idea; locale: "ar" | "en" }) {
       const res = await fetch("/api/ideas/suggest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: idea.title, body: idea.body, locale }),
+        body: JSON.stringify({ title: idea.title, body: idea.body, locale: suggLocale }),
         signal: ac.signal,
       });
       const data = await res.json().catch(() => ({}));
@@ -243,6 +245,16 @@ function IdeaCard({ idea, locale }: { idea: Idea; locale: "ar" | "en" }) {
             <LightbulbIcon width={13} height={13} className="text-primary" />
           )}
           {loading ? t.thinking : t.getSuggestion}
+        </button>
+
+        {/* Language toggle for the suggestion — independent of app locale */}
+        <button
+          onClick={() => setSuggLocale((l) => (l === "ar" ? "en" : "ar"))}
+          disabled={loading}
+          title={suggLocale === "ar" ? "Switch to English" : "التبديل للعربية"}
+          className="rounded-lg border border-border px-2.5 py-1.5 text-xs font-bold hover:bg-surface-2 transition-base disabled:opacity-60"
+        >
+          {suggLocale === "ar" ? "EN" : "عر"}
         </button>
 
         {idea.status !== "done" && (
