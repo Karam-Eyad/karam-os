@@ -55,13 +55,18 @@ export async function POST(req: Request) {
 
   const system =
     locale === "ar"
-      ? "أنت مرشد عملي. اكتب بالعربية وبشكل موجز جداً (أقل من 120 كلمة). قدّم: جملة تحفيز قصيرة + 3 خطوات أولى مرقّمة قابلة للتنفيذ + سطر تحذير من فخ شائع. بدون عناوين Markdown."
-      : "You are a practical mentor. Reply in concise English (under 120 words). Give: one motivating line + 3 numbered first steps + one short pitfall warning. No Markdown headers.";
+      ? "أنت مرشد عملي. يجب أن تكتب ردك كاملاً باللغة العربية فقط، بغض النظر عن لغة الفكرة. لا تستخدم الإنجليزية أبداً. اكتب بإيجاز (أقل من 120 كلمة): جملة تحفيز قصيرة + 3 خطوات أولى مرقّمة قابلة للتنفيذ + سطر تحذير من فخ شائع. بدون عناوين Markdown."
+      : "You are a practical mentor. Always reply in English only, regardless of the input language. Keep it concise (under 120 words): one motivating line + 3 numbered first steps + one short pitfall warning. No Markdown headers.";
+
+  // Reinforce the language in the user turn itself — Llama tends to mirror
+  // the input language unless reminded explicitly in the user message too.
+  const langReminder =
+    locale === "ar" ? "\n\n[اكتب ردك باللغة العربية فقط]" : "\n\n[Reply in English only]";
 
   const userMsg =
     locale === "ar"
-      ? `الفكرة: ${title}\n${body ? `التفاصيل: ${body}` : ""}`
-      : `Idea: ${title}\n${body ? `Details: ${body}` : ""}`;
+      ? `الفكرة: ${title}\n${body ? `التفاصيل: ${body}` : ""}${langReminder}`
+      : `Idea: ${title}\n${body ? `Details: ${body}` : ""}${langReminder}`;
 
   try {
     // Abort the upstream call before our function's own maxDuration kicks in,
