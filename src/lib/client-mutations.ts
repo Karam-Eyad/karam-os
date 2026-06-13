@@ -154,6 +154,42 @@ export async function clientDeleteProject(id: string) {
 }
 
 // ---------- Habits ----------
+export async function clientCreateHabit(data: {
+  name: string;
+  icon?: string;
+  color?: string;
+  frequency?: "daily" | "weekly";
+}) {
+  const userId = await getUserId();
+  if (!userId) return;
+  await sb.from("habits").insert({
+    user_id: userId,
+    name: data.name,
+    icon: data.icon ?? "target",
+    color: data.color ?? "#4f46e5",
+    frequency: data.frequency ?? "daily",
+  });
+  revalidateHabits(todayISO());
+}
+
+export async function clientUpdateHabit(
+  id: string,
+  data: {
+    name?: string;
+    icon?: string;
+    color?: string;
+    frequency?: "daily" | "weekly";
+  }
+) {
+  await sb.from("habits").update(data).eq("id", id);
+  revalidateHabits(todayISO());
+}
+
+export async function clientDeleteHabit(id: string) {
+  await sb.from("habits").delete().eq("id", id);
+  revalidateHabits(todayISO());
+}
+
 export async function clientToggleHabitLog(
   habitId: string,
   date: string,

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
-import { createHabit, updateHabit } from "@/app/actions";
+import { useState, useRef } from "react";
+import { clientCreateHabit, clientUpdateHabit } from "@/lib/client-mutations";
 import { useI18n } from "@/lib/i18n/context";
 import { clsx } from "@/lib/clsx";
 import { PlusIcon, XIcon, HABIT_ICONS, HabitIconRenderer } from "./icons";
@@ -34,7 +34,6 @@ export function HabitDialog({
   const { t } = useI18n();
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
-  const [pending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
 
   const [name, setName] = useState(habit?.name ?? "");
@@ -61,21 +60,15 @@ export function HabitDialog({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) return;
-    const fd = new FormData();
-    if (habit) fd.append("id", habit.id);
-    fd.append("name", name);
-    fd.append("icon", icon);
-    fd.append("color", color);
-    fd.append("frequency", frequency);
-    startTransition(async () => {
-      if (habit) {
-        await updateHabit(fd);
-      } else {
-        await createHabit(fd);
-        resetForm();
-      }
-      close();
-    });
+    const data = { name: name.trim(), icon, color, frequency };
+    // Close immediately; mutation runs in the background and SWR revalidates.
+    if (habit) {
+      clientUpdateHabit(habit.id, data);
+    } else {
+      clientCreateHabit(data);
+      resetForm();
+    }
+    close();
   }
 
   return (
@@ -93,14 +86,14 @@ export function HabitDialog({
 
       {/* Modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+        <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto p-0 sm:items-center sm:p-4">
           <div
-            className="absolute inset-0 bg-black/50 animate-fade-in"
+            className="fixed inset-0 bg-black/50 animate-fade-in"
             onClick={close}
           />
-          <div className="animate-slide-up relative w-full max-w-md rounded-t-2xl sm:rounded-2xl border border-border bg-surface shadow-pop mx-4 mb-0 sm:mb-0">
+          <div className="animate-slide-up relative my-auto flex max-h-[92dvh] w-full max-w-md flex-col rounded-t-2xl sm:max-h-[88dvh] sm:rounded-2xl border border-border bg-surface shadow-pop">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-border px-5 py-4">
+            <div className="flex shrink-0 items-center justify-between border-b border-border px-5 py-4">
               <h2 className="text-base font-bold">
                 {habit ? t.editHabit : t.newHabit}
               </h2>
@@ -113,7 +106,7 @@ export function HabitDialog({
             </div>
 
             {/* Form */}
-            <form ref={formRef} onSubmit={handleSubmit} className="p-5 space-y-5">
+            <form ref={formRef} onSubmit={handleSubmit} className="overflow-y-auto p-5 space-y-5">
               {/* Name */}
               <div>
                 <label className="eyebrow mb-1.5 block">{t.habitName}</label>
@@ -204,7 +197,7 @@ export function HabitDialog({
                 </button>
                 <button
                   type="submit"
-                  disabled={pending || !name.trim()}
+                  disabled={!name.trim()}
                   className="flex-1 rounded-lg bg-primary py-2 text-sm font-semibold text-primary-fg hover-lift transition-spring disabled:opacity-60"
                 >
                   {t.save}

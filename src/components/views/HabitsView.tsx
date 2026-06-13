@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useI18n } from "@/lib/i18n/context";
 import { PageHeader } from "@/components/PageHeader";
 import { HabitItem } from "@/components/HabitItem";
 import { HabitDialog } from "@/components/HabitDialog";
 import { HabitCompletionChart } from "@/components/HabitCompletionChart";
 import { HabitRing } from "@/components/HabitRing";
-import { deleteHabit } from "@/app/actions";
+import { clientDeleteHabit } from "@/lib/client-mutations";
 import { FireIcon, TrendingUpIcon } from "@/components/icons";
 import { clsx } from "@/lib/clsx";
 import { useHabits, useHabitChartData } from "@/lib/hooks";
@@ -37,7 +37,6 @@ export function HabitsView() {
   const { data: habits = [], isLoading } = useHabits(today);
   const { data: chartData = [] } = useHabitChartData(today);
   const [editingHabit, setEditingHabit] = useState<HabitWithLogs | null>(null);
-  const [, startDelete] = useTransition();
 
   if (isLoading)
     return (
@@ -68,11 +67,7 @@ export function HabitsView() {
 
   function handleDelete(habit: HabitWithLogs) {
     if (!confirm(t.deleteHabitConfirm)) return;
-    startDelete(async () => {
-      const fd = new FormData();
-      fd.append("id", habit.id);
-      await deleteHabit(fd);
-    });
+    clientDeleteHabit(habit.id);
   }
 
   return (

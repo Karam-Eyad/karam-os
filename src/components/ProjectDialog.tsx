@@ -6,7 +6,7 @@ import { Button, Input, Label } from "./ui";
 import { PlusIcon, EditIcon } from "./icons";
 import { clsx } from "@/lib/clsx";
 import { useI18n } from "@/lib/i18n/context";
-import { createProject, updateProject } from "@/app/actions";
+import { clientCreateProject, clientUpdateProject } from "@/lib/client-mutations";
 import type { Project } from "@/lib/types";
 
 const SWATCHES = [
@@ -26,11 +26,16 @@ export function ProjectDialog({ project }: { project?: Project }) {
   const [color, setColor] = useState(project?.color ?? SWATCHES[0]);
   const editing = !!project;
 
-  async function handle(formData: FormData) {
-    formData.set("color", color);
-    if (editing) await updateProject(formData);
-    else await createProject(formData);
+  function handle(formData: FormData) {
+    const data = {
+      name: String(formData.get("name") || "").trim(),
+      track: String(formData.get("track") || "").trim() || null,
+      color,
+    };
+    if (!data.name) return;
     setOpen(false);
+    if (editing) clientUpdateProject(project.id, data);
+    else clientCreateProject(data);
   }
 
   return (

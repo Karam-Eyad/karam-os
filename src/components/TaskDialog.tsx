@@ -5,8 +5,8 @@ import { Modal } from "./Modal";
 import { Button, Input, Textarea, Select, Label } from "./ui";
 import { PlusIcon, EditIcon } from "./icons";
 import { useI18n } from "@/lib/i18n/context";
-import { createTask, updateTask } from "@/app/actions";
-import type { Project, Task } from "@/lib/types";
+import { clientCreateTask, clientUpdateTask } from "@/lib/client-mutations";
+import type { Priority, Project, Recurrence, Status, Task } from "@/lib/types";
 
 export function TaskDialog({
   projects,
@@ -23,10 +23,21 @@ export function TaskDialog({
   const [open, setOpen] = useState(false);
   const editing = !!task;
 
-  async function handle(formData: FormData) {
-    if (editing) await updateTask(formData);
-    else await createTask(formData);
+  function handle(formData: FormData) {
+    const data = {
+      title: String(formData.get("title") || "").trim(),
+      description: String(formData.get("description") || "").trim() || null,
+      due_date: String(formData.get("due_date") || "") || null,
+      priority: String(formData.get("priority") || "medium") as Priority,
+      status: String(formData.get("status") || "todo") as Status,
+      recurrence: String(formData.get("recurrence") || "none") as Recurrence,
+      project_id: String(formData.get("project_id") || "") || null,
+    };
+    if (!data.title) return;
+    // Close immediately; mutation runs in the background and SWR revalidates.
     setOpen(false);
+    if (editing) clientUpdateTask(task.id, data);
+    else clientCreateTask(data);
   }
 
   return (
