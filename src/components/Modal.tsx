@@ -17,38 +17,45 @@ export function Modal({
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    // Lock body scroll while modal is open
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
   }, [open, onClose]);
 
   if (!open) return null;
 
   return (
-    // Outer: fixed overlay that scrolls when form is taller than viewport
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    // Fixed overlay — flex centres the card
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      {/* Flex wrapper — min-h-full centres the card vertically */}
-      <div className="flex min-h-full items-end justify-center sm:items-center sm:p-4">
-        <div
-          className="animate-pop relative z-10 w-full max-w-md rounded-t-2xl border border-border bg-surface sm:rounded-2xl"
-          style={{ boxShadow: "var(--shadow-lg)" }}
-        >
-          {/* Sticky header */}
-          <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-2xl border-b border-border bg-surface px-6 py-4 sm:rounded-t-2xl">
-            <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
-            <button
-              onClick={onClose}
-              aria-label="close"
-              className="transition-base grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-surface-2 hover:text-foreground"
-            >
-              ✕
-            </button>
-          </div>
-          <div className="px-6 py-5">{children}</div>
+      {/* Card — limited to viewport height; header fixed, body scrolls */}
+      <div
+        className="animate-pop relative z-10 flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-border bg-surface"
+        style={{
+          boxShadow: "var(--shadow-lg)",
+          maxHeight: "calc(100dvh - 2rem)",
+        }}
+      >
+        {/* Sticky header */}
+        <div className="flex shrink-0 items-center justify-between border-b border-border px-6 py-4">
+          <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
+          <button
+            onClick={onClose}
+            aria-label="close"
+            className="transition-base grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-surface-2 hover:text-foreground"
+          >
+            ✕
+          </button>
         </div>
+        {/* Scrollable body */}
+        <div className="overflow-y-auto px-6 py-5">{children}</div>
       </div>
     </div>
   );
