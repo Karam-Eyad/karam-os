@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { toggleHabitLog } from "@/app/actions";
 import { HabitRing } from "./HabitRing";
 import { HabitIconRenderer, FireIcon, TrashIcon, EditIcon } from "./icons";
@@ -52,14 +52,17 @@ export function HabitItem({
   onDelete,
   className,
 }: HabitItemProps) {
-  const [pending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const todayLog = habit.logs.find((l) => l.completed_date === todayISO);
-  const completedToday = !!todayLog;
+  // Optimistic local state — flip immediately so the ring/checkmark update
+  // without waiting for the server round-trip.
+  const [completedToday, setCompletedToday] = useState(!!todayLog);
   const streak = calcStreak(habit.logs);
   const rate = calcCompletionRate(habit.logs);
 
   function handleToggle() {
+    setCompletedToday((prev) => !prev); // instant visual feedback
     startTransition(async () => {
       const fd = new FormData();
       fd.append("habit_id", habit.id);
@@ -139,7 +142,6 @@ export function HabitItem({
       {/* Complete button */}
       <button
         onClick={handleToggle}
-        disabled={pending}
         className={clsx(
           "grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 transition-base",
           completedToday

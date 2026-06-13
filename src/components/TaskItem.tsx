@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useTransition } from "react";
 import { useI18n } from "@/lib/i18n/context";
 import { clsx } from "@/lib/clsx";
 import { toggleTask, deleteTask } from "@/app/actions";
@@ -24,8 +25,20 @@ export function TaskItem({
   showDate?: boolean;
 }) {
   const { t, locale } = useI18n();
-  const done = task.status === "done";
+  // Optimistic local state — flip immediately on click; server syncs in bg.
+  const [done, setDone] = useState(task.status === "done");
+  const [, startTransition] = useTransition();
+
   const overdue = !done && task.due_date && isPast(task.due_date);
+
+  function handleToggle() {
+    setDone((prev) => !prev); // instant visual feedback
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.set("id", task.id);
+      await toggleTask(fd);
+    });
+  }
 
   return (
     <div
@@ -35,20 +48,18 @@ export function TaskItem({
         done && "opacity-60"
       )}
     >
-      <form action={toggleTask}>
-        <input type="hidden" name="id" value={task.id} />
-        <button
-          aria-label={done ? t.markUndone : t.markDone}
-          className={clsx(
-            "transition-base grid h-5 w-5 shrink-0 place-items-center rounded-full border",
-            done
-              ? "border-primary bg-primary text-primary-fg"
-              : "border-border-strong hover:border-primary"
-          )}
-        >
-          {done && <CheckIcon width={13} height={13} strokeWidth={3} />}
-        </button>
-      </form>
+      <button
+        onClick={handleToggle}
+        aria-label={done ? t.markUndone : t.markDone}
+        className={clsx(
+          "transition-base grid h-5 w-5 shrink-0 place-items-center rounded-full border",
+          done
+            ? "border-primary bg-primary text-primary-fg"
+            : "border-border-strong hover:border-primary"
+        )}
+      >
+        {done && <CheckIcon width={13} height={13} strokeWidth={3} />}
+      </button>
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
