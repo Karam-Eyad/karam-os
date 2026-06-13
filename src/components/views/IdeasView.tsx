@@ -260,7 +260,7 @@ function IdeaCard({ idea, locale }: { idea: Idea; locale: "ar" | "en" }) {
             startTransition(() => updateIdeaStatus(fd));
           }}
           disabled={pending}
-          className="rounded-lg border border-border bg-background px-2 py-1.5 text-xs font-medium outline-none focus:border-primary transition-base"
+          className="cursor-pointer rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs font-semibold outline-none hover:bg-surface-2 focus:border-primary transition-base disabled:opacity-60"
         >
           <option value="new">{t.statusNew}</option>
           <option value="in_progress">{t.statusInProgress}</option>

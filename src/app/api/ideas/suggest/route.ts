@@ -20,6 +20,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "missing_api_key" }, { status: 500 });
   }
 
+  // The configured key is an NVIDIA NIM key (prefix "nvapi-"), which serves
+  // DeepSeek models through NVIDIA's OpenAI-compatible endpoint. Auto-detect
+  // by key prefix, but allow explicit overrides via env.
+  const isNvidia =
+    process.env.AI_PROVIDER === "nvidia" || apiKey.startsWith("nvapi-");
+  const baseUrl =
+    process.env.AI_BASE_URL ||
+    (isNvidia
+      ? "https://integrate.api.nvidia.com/v1"
+      : "https://api.deepseek.com");
+  const model =
+    process.env.AI_MODEL ||
+    (isNvidia ? "deepseek-ai/deepseek-v4-flash" : "deepseek-chat");
+
   let title = "";
   let body = "";
   let locale: "ar" | "en" = "ar";
@@ -47,14 +61,14 @@ export async function POST(req: Request) {
       : `Idea: ${title}\n${body ? `Details: ${body}` : ""}`;
 
   try {
-    const res = await fetch("https://api.deepseek.com/chat/completions", {
+    const res = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "deepseek-chat",
+        model,
         messages: [
           { role: "system", content: system },
           { role: "user", content: userMsg },
@@ -65,10 +79,9 @@ export async function POST(req: Request) {
     });
 
     if (!res.ok) {
-      return NextResponse.json(
-        { error: "deepseek_error" },
-        { status: 502 }
-      );
+      const detail = await res.text().catch(() => "");
+      console.error("AI suggest error", res.status, detail.slice(0, 300));
+      return NextResponse.json({ error: "ai_error" }, { status: 502 });
     }
 
     const data = await res.json();
