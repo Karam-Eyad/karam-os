@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { clientCreateHabit, clientUpdateHabit } from "@/lib/client-mutations";
 import { useI18n } from "@/lib/i18n/context";
 import { clsx } from "@/lib/clsx";
@@ -84,9 +85,9 @@ export function HabitDialog({
         </button>
       )}
 
-      {/* Modal */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Modal — rendered via portal directly on document.body */}
+      {isOpen && typeof document !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           <div
             className="absolute inset-0 bg-black/50 animate-fade-in"
             onClick={close}
@@ -208,7 +209,8 @@ export function HabitDialog({
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

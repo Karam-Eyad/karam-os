@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 export function Modal({
   open,
@@ -13,11 +14,17 @@ export function Modal({
   title: string;
   children: React.ReactNode;
 }) {
+  const portalRef = useRef<HTMLElement | null>(null);
+
+  // Initialise portal target once on the client
+  if (typeof document !== "undefined" && !portalRef.current) {
+    portalRef.current = document.body;
+  }
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
-    // Lock body scroll while modal is open
     document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", onKey);
@@ -25,17 +32,16 @@ export function Modal({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !portalRef.current) return null;
 
-  return (
-    // Fixed overlay — flex centres the card
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      {/* Card — limited to viewport height; header fixed, body scrolls */}
+      {/* Card */}
       <div
         className="animate-pop relative z-10 flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-border bg-surface"
         style={{
@@ -43,7 +49,7 @@ export function Modal({
           maxHeight: "calc(100dvh - 2rem)",
         }}
       >
-        {/* Sticky header */}
+        {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-border px-6 py-4">
           <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
           <button
@@ -57,6 +63,7 @@ export function Modal({
         {/* Scrollable body */}
         <div className="overflow-y-auto px-6 py-5">{children}</div>
       </div>
-    </div>
+    </div>,
+    portalRef.current
   );
 }
