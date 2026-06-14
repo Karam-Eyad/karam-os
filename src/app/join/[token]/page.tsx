@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { joinTeamByToken } from "@/app/actions";
+import { revalidatePath } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -15,16 +15,35 @@ export default async function JoinPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Not logged in → go to login with return URL
   if (!user) {
     redirect(`/login?next=/join/${token}`);
   }
 
-  const result = await joinTeamByToken(token);
+  const { data: invite, error: inviteErr } = await supabase
+    .from("team_invites")
+    .select("team_id")
+    .eq("token", token)
+    .maybeSingle();
 
-  if (result?.error === "invalid_token") {
+  if (inviteErr || !invite) {
     redirect("/team?error=invalid_invite");
   }
 
+  const { data: existing } = await supabase
+    .from("team_members")
+    .select("id")
+    .eq("team_id", invite.team_id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!existing) {
+    await supabase.from("team_members").insert({
+      team_id: invite.team_id,
+      user_id: user.id,
+      role: "editor",
+    });
+  }
+
+  revalidatePath("/", "layout");
   redirect("/team?joined=1");
 }
