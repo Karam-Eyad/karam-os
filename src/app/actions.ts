@@ -344,6 +344,7 @@ export async function createTeamTask(formData: FormData) {
   const title = String(formData.get("title") || "").trim();
   const team_id = String(formData.get("team_id"));
   if (!title || !team_id) return;
+  const assignee_id = String(formData.get("assignee_id") || "").trim() || null;
   await supabase.from("tasks").insert({
     user_id: user.id,
     team_id,
@@ -354,6 +355,7 @@ export async function createTeamTask(formData: FormData) {
     status: (String(formData.get("status") || "todo") as Status),
     recurrence: "none" as Recurrence,
     project_id: String(formData.get("project_id") || "") || null,
+    assignee_id,
   });
   revalidateApp();
 }

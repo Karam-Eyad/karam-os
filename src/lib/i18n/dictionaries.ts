@@ -126,6 +126,8 @@ const dictionaries = {
     invalidInvite: "رابط الدعوة غير صالح.",
     addTeamTask: "إضافة مهمة",
     addTeamProject: "إضافة مشروع",
+    assignTo: "تعيين إلى",
+    unassigned: "غير معيّن",
     // ideas
     ideas: "الأفكار",
     ideasSpace: "مساحة الأفكار",
@@ -266,6 +268,8 @@ const dictionaries = {
     invalidInvite: "Invalid invite link.",
     addTeamTask: "Add task",
     addTeamProject: "Add project",
+    assignTo: "Assign to",
+    unassigned: "Unassigned",
     // ideas
     ideas: "Ideas",
     ideasSpace: "Ideas Space",

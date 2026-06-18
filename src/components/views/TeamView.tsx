@@ -233,11 +233,18 @@ function MembersCard({
   );
 }
 
-function QuickAddTask({ teamId }: { teamId: string }) {
+function QuickAddTask({
+  teamId,
+  members,
+}: {
+  teamId: string;
+  members: TeamMember[];
+}) {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState<"high" | "medium" | "low">("medium");
+  const [assigneeId, setAssigneeId] = useState<string>("");
   const [pending, startTransition] = useTransition();
 
   function submit(e: React.FormEvent) {
@@ -247,9 +254,11 @@ function QuickAddTask({ teamId }: { teamId: string }) {
     fd.append("team_id", teamId);
     fd.append("title", title);
     fd.append("priority", priority);
+    if (assigneeId) fd.append("assignee_id", assigneeId);
     startTransition(async () => {
       await createTeamTask(fd);
       setTitle("");
+      setAssigneeId("");
       setOpen(false);
     });
   }
@@ -279,7 +288,7 @@ function QuickAddTask({ teamId }: { teamId: string }) {
         className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring transition-base"
       />
       {/* Priority */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {(["high", "medium", "low"] as const).map((p) => {
           const colors = { high: "#ef4444", medium: "#f59e0b", low: "#10b981" };
           const labels = { high: t.high, medium: t.medium, low: t.low };
@@ -300,10 +309,53 @@ function QuickAddTask({ teamId }: { teamId: string }) {
           );
         })}
       </div>
+      {/* Assignee */}
+      {members.length > 0 && (
+        <div>
+          <label className="mb-1 block text-xs text-muted">{t.assignTo}</label>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setAssigneeId("")}
+              className={clsx(
+                "rounded-lg border px-3 py-1.5 text-xs font-medium transition-base",
+                !assigneeId
+                  ? "border-primary bg-accent-soft text-primary"
+                  : "border-border text-muted hover:bg-surface-2"
+              )}
+            >
+              {t.unassigned}
+            </button>
+            {members.map((m) => {
+              const label =
+                m.profile?.full_name || m.profile?.email?.split("@")[0] || "—";
+              const isSelected = assigneeId === m.user_id;
+              return (
+                <button
+                  key={m.user_id}
+                  type="button"
+                  onClick={() => setAssigneeId(isSelected ? "" : m.user_id)}
+                  className={clsx(
+                    "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-base",
+                    isSelected
+                      ? "border-primary bg-accent-soft text-primary"
+                      : "border-border text-muted hover:bg-surface-2"
+                  )}
+                >
+                  <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-accent-soft text-[10px] font-bold text-primary">
+                    {label.slice(0, 1).toUpperCase()}
+                  </span>
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
       <div className="flex gap-2">
         <button
           type="button"
-          onClick={() => { setOpen(false); setTitle(""); }}
+          onClick={() => { setOpen(false); setTitle(""); setAssigneeId(""); }}
           className="flex-1 rounded-lg border border-border py-2 text-sm hover:bg-surface-2 transition-base"
         >
           {t.cancel}
@@ -513,7 +565,7 @@ export function TeamView({
                 )}
               >
                 <div className="flex items-center gap-3 px-4 py-3">
-                  {/* Status dot */}
+                  {/* Priority dot */}
                   <span
                     className="h-2 w-2 shrink-0 rounded-full"
                     style={{ background: priorityColor[task.priority] }}
@@ -526,7 +578,26 @@ export function TeamView({
                   >
                     {task.title}
                   </p>
-                  {/* Assigned by */}
+                  {/* Assignee avatar */}
+                  {(() => {
+                    const assignee = task.assignee_id
+                      ? members.find((m) => m.user_id === task.assignee_id)
+                      : null;
+                    if (!assignee) return null;
+                    const label =
+                      assignee.profile?.full_name ||
+                      assignee.profile?.email?.split("@")[0] ||
+                      "?";
+                    return (
+                      <span
+                        title={label}
+                        className="hidden sm:grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/15 text-[10px] font-bold text-primary"
+                      >
+                        {label.slice(0, 1).toUpperCase()}
+                      </span>
+                    );
+                  })()}
+                  {/* Creator name */}
                   <span className="hidden shrink-0 text-xs text-muted sm:block">
                     {members.find((m) => m.user_id === task.user_id)?.profile
                       ?.full_name ??
@@ -559,7 +630,7 @@ export function TeamView({
             );
           })}
         </div>
-        <QuickAddTask teamId={team.id} />
+        <QuickAddTask teamId={team.id} members={members} />
       </section>
     </div>
   );

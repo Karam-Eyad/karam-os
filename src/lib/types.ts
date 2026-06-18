@@ -14,7 +14,9 @@ export type Project = {
 export type Task = {
   id: string;
   user_id: string;
+  team_id?: string | null;
   project_id: string | null;
+  assignee_id?: string | null;
   title: string;
   description: string | null;
   due_date: string | null;
@@ -27,6 +29,7 @@ export type Task = {
 
 export type TaskWithProject = Task & {
   project: Pick<Project, "id" | "name" | "color"> | null;
+  assignee?: { full_name: string | null; email: string | null } | null;
 };
 
 export type Profile = {
