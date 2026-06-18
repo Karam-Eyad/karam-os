@@ -64,9 +64,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
   async function handleGoogle() {
     setError(null);
+    const callbackUrl =
+      nextUrl && nextUrl !== "/"
+        ? `${siteUrl}/auth/callback?next=${encodeURIComponent(nextUrl)}`
+        : `${siteUrl}/auth/callback`;
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${siteUrl}/auth/callback` },
+      options: { redirectTo: callbackUrl },
     });
   }
 

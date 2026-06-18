@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -44,8 +43,7 @@ export default async function JoinPage({
     redirect(`/login?next=/join/${encodeURIComponent(token)}`);
   }
 
-  // joined or already_member → revalidate and route into the team
-  revalidatePath("/", "layout");
+  // joined or already_member → route into the team
   redirect(row.status === "joined" ? "/team?joined=1" : "/team");
 }
 
