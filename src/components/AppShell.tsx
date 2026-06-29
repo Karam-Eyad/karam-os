@@ -20,6 +20,7 @@ import {
   HabitsIcon,
   UsersIcon,
   LightbulbIcon,
+  SkillsIcon,
 } from "./icons";
 
 export function AppShell({
@@ -40,6 +41,7 @@ export function AppShell({
     { href: "/", label: t.today, icon: TodayIcon },
     { href: "/week", label: t.week, icon: WeekIcon },
     { href: "/habits", label: t.habits, icon: HabitsIcon },
+    { href: "/skills", label: t.skills, icon: SkillsIcon },
     { href: "/ideas", label: t.ideas, icon: LightbulbIcon },
     { href: "/projects", label: t.projects, icon: ProjectsIcon },
     { href: "/tasks", label: t.allTasks, icon: TasksIcon },

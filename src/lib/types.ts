@@ -108,3 +108,59 @@ export type Idea = {
   status: IdeaStatus;
   created_at: string;
 };
+
+// ---------- Skills ----------
+export type Skill = {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  icon: string;
+  color: string;
+  created_at: string;
+};
+
+export type SkillSession = {
+  id: string;
+  skill_id: string;
+  user_id: string;
+  duration_minutes: number;
+  notes: string | null;
+  created_at: string;
+};
+
+export type SkillWithSessions = Skill & {
+  sessions: SkillSession[];
+};
+
+export const SKILL_LEVEL_THRESHOLDS = [0, 10, 25, 50] as const;
+export const SKILL_LEVEL_NAMES = {
+  ar: ["مبتدئ", "متوسط", "متقدم", "خبير"],
+  en: ["Beginner", "Intermediate", "Advanced", "Expert"],
+};
+
+export function getSkillLevel(totalSessions: number): number {
+  let level = 1;
+  for (let i = 1; i < SKILL_LEVEL_THRESHOLDS.length; i++) {
+    if (totalSessions >= SKILL_LEVEL_THRESHOLDS[i]) level = i + 1;
+    else break;
+  }
+  return level;
+}
+
+export function getSkillLevelProgress(totalSessions: number): {
+  level: number;
+  current: number;
+  needed: number;
+  pct: number;
+} {
+  const level = getSkillLevel(totalSessions);
+  if (level >= 4) {
+    return { level, current: totalSessions - SKILL_LEVEL_THRESHOLDS[3], needed: 0, pct: 100 };
+  }
+  const from = SKILL_LEVEL_THRESHOLDS[level - 1];
+  const to = SKILL_LEVEL_THRESHOLDS[level];
+  const current = totalSessions - from;
+  const needed = to - from;
+  return { level, current, needed, pct: Math.round((current / needed) * 100) };
+}

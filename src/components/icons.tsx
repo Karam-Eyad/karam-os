@@ -232,6 +232,22 @@ export const SendIcon = (p: P) => (
   </svg>
 );
 
+export const SkillsIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
+  </svg>
+);
+export const PlayIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" stroke="none" />
+  </svg>
+);
+export const ChevronRightIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M9 18l6-6-6-6" />
+  </svg>
+);
+
 export const HabitsIcon = (p: P) => (
   <svg {...base} {...p}>
     <path d="M12 22c4.97 0 9-3.58 9-8 0-3-1.5-5.5-4-7.5 0 2-1 3.5-2.5 4.5C14 9 13 7 13 5c-2 1.5-3 4-3 6.5 0 .5.05 1 .15 1.5C9.05 12.5 8.5 11.5 8.5 10.5c-1.5 1.5-2.5 4-2.5 6 0 3 2.5 5.5 6 5.5z" />

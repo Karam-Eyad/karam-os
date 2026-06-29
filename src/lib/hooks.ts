@@ -6,7 +6,7 @@
 import useSWR, { mutate as globalMutate } from "swr";
 import { createClient } from "@/lib/supabase/client";
 import { todayISO } from "@/lib/date";
-import type { HabitWithLogs, Project, TaskWithProject } from "@/lib/types";
+import type { HabitWithLogs, Project, SkillWithSessions, TaskWithProject } from "@/lib/types";
 
 // Single shared client instance for the browser session.
 const sb = createClient();
@@ -19,6 +19,8 @@ export const KEYS = {
   projectCounts: "project-counts",
   habits: (today: string) => ["habits", today] as const,
   habitChartData: (today: string) => ["habit-chart", today] as const,
+  skills: "skills",
+  skillDetail: (id: string) => ["skill", id] as const,
 } as const;
 
 // Invalidate all task-related caches after any mutation.
@@ -34,6 +36,10 @@ export function revalidateProjects() {
 export function revalidateHabits(today: string) {
   globalMutate(["habits", today]);
   globalMutate(["habit-chart", today]);
+}
+export function revalidateSkills(skillId?: string) {
+  globalMutate("skills");
+  if (skillId) globalMutate(["skill", skillId]);
 }
 
 // ---------- Tasks ----------
@@ -161,4 +167,29 @@ export function useHabitChartData(today: string) {
     },
     { revalidateOnFocus: false }
   );
+}
+
+// ---------- Skills ----------
+export function useSkills() {
+  return useSWR<SkillWithSessions[]>(KEYS.skills, async () => {
+    const [{ data: skills }, { data: sessions }] = await Promise.all([
+      sb.from("skills").select("*").order("created_at"),
+      sb.from("skill_sessions").select("*").order("created_at", { ascending: false }),
+    ]);
+    return (skills ?? []).map((s) => ({
+      ...s,
+      sessions: (sessions ?? []).filter((ss) => ss.skill_id === s.id),
+    })) as SkillWithSessions[];
+  });
+}
+
+export function useSkillDetail(id: string) {
+  return useSWR<SkillWithSessions>(KEYS.skillDetail(id), async () => {
+    const [{ data: skill }, { data: sessions }] = await Promise.all([
+      sb.from("skills").select("*").eq("id", id).single(),
+      sb.from("skill_sessions").select("*").eq("skill_id", id).order("created_at", { ascending: false }),
+    ]);
+    if (!skill) throw new Error("not found");
+    return { ...skill, sessions: sessions ?? [] } as SkillWithSessions;
+  });
 }

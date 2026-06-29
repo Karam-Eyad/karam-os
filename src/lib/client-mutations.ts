@@ -5,7 +5,7 @@
  */
 import { createClient } from "@/lib/supabase/client";
 import { addDays, toISODate, todayISO } from "@/lib/date";
-import { revalidateTasks, revalidateProjects, revalidateHabits } from "@/lib/hooks";
+import { revalidateTasks, revalidateProjects, revalidateHabits, revalidateSkills } from "@/lib/hooks";
 import type { IdeaStatus, Priority, Recurrence, Status } from "@/lib/types";
 
 const sb = createClient();
@@ -212,4 +212,63 @@ export async function clientToggleHabitLog(
     });
   }
   revalidateHabits(todayISO());
+}
+
+// ---------- Skills ----------
+export async function clientCreateSkill(data: {
+  name: string;
+  description?: string | null;
+  icon?: string;
+  color?: string;
+}) {
+  const userId = await getUserId();
+  if (!userId) return;
+  await sb.from("skills").insert({
+    user_id: userId,
+    name: data.name,
+    description: data.description ?? null,
+    icon: data.icon ?? "🎯",
+    color: data.color ?? "#6366f1",
+  });
+  revalidateSkills();
+}
+
+export async function clientUpdateSkill(
+  id: string,
+  data: { name?: string; description?: string | null; icon?: string; color?: string }
+) {
+  await sb.from("skills").update(data).eq("id", id);
+  revalidateSkills(id);
+}
+
+export async function clientDeleteSkill(id: string) {
+  await sb.from("skills").delete().eq("id", id);
+  revalidateSkills();
+}
+
+export async function clientCreateSkillSession(data: {
+  skill_id: string;
+  duration_minutes: number;
+  notes?: string | null;
+}): Promise<number> {
+  const userId = await getUserId();
+  if (!userId) return 0;
+  await sb.from("skill_sessions").insert({
+    skill_id: data.skill_id,
+    user_id: userId,
+    duration_minutes: data.duration_minutes,
+    notes: data.notes ?? null,
+  });
+  // Return new total to detect level-up in UI
+  const { count } = await sb
+    .from("skill_sessions")
+    .select("*", { count: "exact", head: true })
+    .eq("skill_id", data.skill_id);
+  revalidateSkills(data.skill_id);
+  return count ?? 0;
+}
+
+export async function clientDeleteSkillSession(id: string, skillId: string) {
+  await sb.from("skill_sessions").delete().eq("id", id);
+  revalidateSkills(skillId);
 }
